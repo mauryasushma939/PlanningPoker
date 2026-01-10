@@ -20,7 +20,6 @@ const PlanningPokerBoard = ({ roomData, onBack }) => {
   const [copyMessage, setCopyMessage] = useState('');
   const [storyDescription, setStoryDescription] = useState(null);
   const [descriptionInput, setDescriptionInput] = useState('');
-  const [shareMessage, setShareMessage] = useState('');
 
   const fibonacciValues = [1, 2, 3, 5, 8, 13, 21, '?'];
 

@@ -18,12 +18,6 @@ const LandingPage = ({ onStartSession }) => {
     { title: 'Reusable rooms', icon: '♻️', body: 'Reuse the same invite link for recurring sessions and save setup time.' }
   ];
 
-  const pricing = [
-    { name: 'Basic', price: 'Free', perks: ['Single room', 'Basic moderation', 'Up to 9 participants'] },
-    { name: 'Pro', price: '$10 / mo', perks: ['Unlimited rooms', 'Enhanced moderation', 'Unlimited participants'] },
-    { name: 'Enterprise', price: '$50 / mo', perks: ['Org-wide rooms', 'Moderator insights', 'Priority support'] }
-  ];
-
   const testimonials = [
     { quote: 'Finally a planning poker tool that stays out of the way.', name: 'Agile Coach' },
     { quote: '30 seconds from link to reveal—perfect for remote grooming.', name: 'Scrum Master' }

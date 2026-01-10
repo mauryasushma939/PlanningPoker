@@ -14,20 +14,20 @@ const Footer = () => {
 
         <div className="footer-column">
           <h4>Legal</h4>
-          <a href="#">Terms of Service</a>
-          <a href="#">Privacy Policy</a>
+          <span>Terms of Service</span>
+          <span>Privacy Policy</span>
         </div>
 
         <div className="footer-column">
           <h4>Social Media</h4>
-          <a href="#">LinkedIn</a>
-          <a href="#">Twitter</a>
+          <span>LinkedIn</span>
+          <span>Twitter</span>
         </div>
 
         <div className="footer-column">
           <h4>Support</h4>
-          <a href="#">FAQ</a>
-          <a href="#">Why Planning Poker?</a>
+          <span>FAQ</span>
+          <span>Why Planning Poker?</span>
           <a href="mailto:support@fls.com">support@fls.com</a>
         </div>
       </div>
