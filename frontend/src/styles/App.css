@@ -1409,6 +1409,24 @@ body {
   box-shadow: 0 5px 20px rgba(0, 217, 255, 0.4);
 }
 
+.share-btn {
+  padding: 10px 15px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(0, 217, 255, 0.3);
+  border-radius: 10px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.share-btn:hover {
+  background: rgba(0, 217, 255, 0.1);
+  border-color: #00d9ff;
+  transform: translateY(-1px);
+}
+
 /* Board Content */
 .board-content {
   display: flex;
@@ -1433,6 +1451,86 @@ body {
 .side-panel {
   width: 400px;
   flex-shrink: 0;
+}
+
+/* Story Description Section */
+.story-description-section {
+  margin-bottom: 30px;
+  padding: 20px;
+  background: linear-gradient(160deg, #0f1524 0%, #0c1928 60%, #0f1524 100%);
+  border: 1px solid rgba(0, 217, 255, 0.25);
+  border-radius: 16px;
+  box-shadow: 0 14px 36px rgba(0,0,0,0.28);
+}
+
+.story-description-display h3 {
+  color: #e5ecff;
+  font-size: 1.5rem;
+  margin-bottom: 15px;
+}
+
+.story-description-display p {
+  color: #e5ecff;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.story-description-input h3 {
+  color: #e5ecff;
+  font-size: 1.5rem;
+  margin-bottom: 15px;
+}
+
+.description-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.description-form textarea {
+  width: 100%;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(0, 217, 255, 0.3);
+  border-radius: 8px;
+  color: #e5ecff;
+  font-size: 1rem;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 80px;
+}
+
+.description-form textarea::placeholder {
+  color: #888;
+}
+
+.description-form button {
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #00d9ff 0%, #b794f6 100%);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.description-form button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 217, 255, 0.4);
+}
+
+.description-form button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.description-note {
+  margin-top: 10px;
+  font-size: 0.9rem;
+  color: #888;
 }
 
 /* Chat Panel */

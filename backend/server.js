@@ -8,7 +8,9 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
   cors: {
-    origin: process.env.SOCKET_CORS_ORIGIN || "*",
+    origin: process.env.NODE_ENV === 'production'
+      ? process.env.SOCKET_CORS_ORIGIN?.split(',') || false
+      : "http://localhost:3000",
     methods: ["GET", "POST"]
   }
 });
@@ -46,7 +48,8 @@ app.post('/api/rooms', (req, res) => {
       estimates: {},
       revealed: false,
       createdAt: new Date().toISOString(),
-      messages: []
+      messages: [],
+      storyDescription: null
     };
 
     rooms.set(roomId, room);
@@ -205,7 +208,8 @@ io.on('connection', (socket) => {
       // Broadcast updated room state to all members
       io.to(roomId).emit('room-updated', {
         members: room.members,
-        estimates: room.revealed ? room.estimates : {}
+        estimates: room.revealed ? room.estimates : {},
+        storyDescription: room.storyDescription
       });
 
       console.log(`User ${userName} joined room ${roomId}`);
@@ -217,6 +221,30 @@ io.on('connection', (socket) => {
     } catch (error) {
       console.error('Error joining room:', error);
       socket.emit('error', { message: 'Failed to join room' });
+    }
+  });
+
+  // Set story description
+  socket.on('set-story-description', ({ roomId, userId, storyDescription }) => {
+    try {
+      const room = rooms.get(roomId);
+      
+      if (!room) {
+        socket.emit('error', { message: 'Room not found' });
+        return;
+      }
+
+      room.storyDescription = storyDescription.trim();
+
+      // Broadcast story description update to all members
+      io.to(roomId).emit('story-description-updated', {
+        storyDescription: room.storyDescription
+      });
+
+      console.log(`Story description set in room ${roomId}`);
+    } catch (error) {
+      console.error('Error setting story description:', error);
+      socket.emit('error', { message: 'Failed to set story description' });
     }
   });
 
@@ -334,6 +362,25 @@ io.on('connection', (socket) => {
         totalVotes: Object.keys(room.estimates).length
       });
 
+      // Add chat message for reveal
+      const revealer = room.members.find(m => m.socketId === socket.id);
+      if (revealer) {
+        const revealMessage = {
+          id: uuidv4(),
+          userId: revealer.id,
+          userName: revealer.name,
+          text: `${revealer.name} revealed the estimates`,
+          createdAt: new Date().toISOString()
+        };
+        room.messages = room.messages || [];
+        room.messages.push(revealMessage);
+        // cap history
+        if (room.messages.length > 200) {
+          room.messages = room.messages.slice(-200);
+        }
+        io.to(roomId).emit('chat-message', revealMessage);
+      }
+
       // Update analytics
       const roomAnalytics = analytics.get(roomId);
       if (roomAnalytics) {
@@ -366,6 +413,7 @@ io.on('connection', (socket) => {
       // Clear estimates and reset states
       room.estimates = {};
       room.revealed = false;
+      room.storyDescription = null;
       
       // Reset member statuses
       room.members.forEach(member => {

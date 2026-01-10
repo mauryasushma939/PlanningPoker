@@ -88,6 +88,15 @@ npm start
 
 The frontend will start on `http://localhost:3000` and automatically open in your browser.
 
+## 🌐 Deployment
+
+For production deployment with separate backend and frontend hosting, see the comprehensive [Deployment Guide](./DEPLOYMENT.md).
+
+### Quick Deploy Options:
+- **Vercel** (Frontend + Backend) - Recommended for both
+- **Netlify** (Frontend) + **Railway/Render** (Backend) - Popular combination
+- **GitHub Pages** (Frontend) + **Railway/Render** (Backend) - Free static hosting
+
 ## 📖 Usage Guide
 
 ### Starting a Planning Session

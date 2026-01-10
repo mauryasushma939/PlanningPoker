@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import axios from 'axios';
+import Footer from './Footer';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
 
@@ -132,7 +133,7 @@ const LandingPage = ({ onStartSession }) => {
         transition={{ duration: 0.8 }}
       >
         <div className="top-nav">
-          <div className="nav-brand">Story Point Poker</div>
+          <div className="nav-brand">Planning Poker</div>
           <div className="nav-links">
             <a href="#features">Features</a>
             <a href="#audience">Audience</a>
@@ -318,74 +319,83 @@ const LandingPage = ({ onStartSession }) => {
         </div>
       </motion.section>
 
-      {/* Join Room Panel */}
+      {/* Join Room Modal (overlay like Create modal) */}
       {showJoin && (
-        <motion.section
-          className="join-section"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+        <motion.div
+          className="modal-backdrop"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={() => setShowJoin(false)}
         >
-          <div className="join-card">
-            <div className="join-card-header">
-              <h3>Join an Existing Room</h3>
-              <button className="close-join" onClick={() => setShowJoin(false)}>×</button>
+          <motion.div
+            className="modal-content"
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.8, opacity: 0 }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="join-card">
+              <div className="join-card-header">
+                <h3>Join an Existing Room</h3>
+                <button className="close-join" onClick={() => setShowJoin(false)}>×</button>
+              </div>
+              <form onSubmit={handleJoinRoom} className="join-form">
+                <div className="form-group">
+                  <label htmlFor="joinRoomId">Room ID</label>
+                  <input
+                    type="text"
+                    id="joinRoomId"
+                    value={joinRoomId}
+                    onChange={(e) => setJoinRoomId(e.target.value)}
+                    placeholder="e.g., ab12cd34"
+                    disabled={joinLoading}
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="joinRoomName">Room Name (optional)</label>
+                  <input
+                    type="text"
+                    id="joinRoomName"
+                    value={joinRoomName}
+                    onChange={(e) => setJoinRoomName(e.target.value)}
+                    placeholder="Helps teammates identify the room"
+                    disabled={joinLoading}
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="joinUserName">Your Name</label>
+                  <input
+                    type="text"
+                    id="joinUserName"
+                    value={joinUserName}
+                    onChange={(e) => setJoinUserName(e.target.value)}
+                    placeholder="e.g., Jane Smith"
+                    disabled={joinLoading}
+                  />
+                </div>
+                {joinError && <div className="error-message">{joinError}</div>}
+                <div className="modal-actions">
+                  <button
+                    type="button"
+                    className="btn-secondary"
+                    onClick={() => setShowJoin(false)}
+                    disabled={joinLoading}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="btn-primary"
+                    disabled={joinLoading}
+                  >
+                    {joinLoading ? 'Joining...' : 'Join Room'}
+                  </button>
+                </div>
+              </form>
             </div>
-            <form onSubmit={handleJoinRoom} className="join-form">
-              <div className="form-group">
-                <label htmlFor="joinRoomId">Room ID</label>
-                <input
-                  type="text"
-                  id="joinRoomId"
-                  value={joinRoomId}
-                  onChange={(e) => setJoinRoomId(e.target.value)}
-                  placeholder="e.g., ab12cd34"
-                  disabled={joinLoading}
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="joinRoomName">Room Name (optional)</label>
-                <input
-                  type="text"
-                  id="joinRoomName"
-                  value={joinRoomName}
-                  onChange={(e) => setJoinRoomName(e.target.value)}
-                  placeholder="Helps teammates identify the room"
-                  disabled={joinLoading}
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="joinUserName">Your Name</label>
-                <input
-                  type="text"
-                  id="joinUserName"
-                  value={joinUserName}
-                  onChange={(e) => setJoinUserName(e.target.value)}
-                  placeholder="e.g., Jane Smith"
-                  disabled={joinLoading}
-                />
-              </div>
-              {joinError && <div className="error-message">{joinError}</div>}
-              <div className="modal-actions">
-                <button
-                  type="button"
-                  className="btn-secondary"
-                  onClick={() => setShowJoin(false)}
-                  disabled={joinLoading}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="btn-primary"
-                  disabled={joinLoading}
-                >
-                  {joinLoading ? 'Joining...' : 'Join Room'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </motion.section>
+          </motion.div>
+        </motion.div>
       )}
 
       {/* Key Features Section */}
@@ -427,7 +437,7 @@ const LandingPage = ({ onStartSession }) => {
               </div>
               <div className="key-screen">
                 <div className="key-bar">
-                  <span>Story Point Poker</span>
+                  <span>Planning Poker</span>
                   <span className="key-dots">
                     <span className="dot" />
                     <span className="dot" />
@@ -495,7 +505,7 @@ const LandingPage = ({ onStartSession }) => {
             </div>
             <div className="audience-screen">
               <div className="audience-header">
-                <span className="audience-app">Story Point Poker</span>
+                <span className="audience-app">Planning Poker</span>
                 <span className="audience-rooms">Rooms</span>
               </div>
               <div className="audience-player-list">
@@ -559,40 +569,7 @@ const LandingPage = ({ onStartSession }) => {
       </motion.section>
 
       {/* Footer */}
-      <footer id="contact" className="footer-section">
-        <div className="footer-grid">
-          <div className="footer-column">
-            <div className="footer-logo">Agile<br />FLS</div>
-            <p className="footer-text">
-              Agile FLS is a one man army with a passion for building and leading strong teams towards
-              happiness and success.
-            </p>
-          </div>
-
-          <div className="footer-column">
-            <h4>Legal</h4>
-            <a href="#">Terms of Service</a>
-            <a href="#">Privacy Policy</a>
-          </div>
-
-          <div className="footer-column">
-            <h4>Social Media</h4>
-            <a href="#">LinkedIn</a>
-            <a href="#">Twitter</a>
-          </div>
-
-          <div className="footer-column">
-            <h4>Support</h4>
-            <a href="#">FAQ</a>
-            <a href="#">Why Planning Poker?</a>
-            <a href="mailto:support@fls.com">support@fls.com</a>
-          </div>
-        </div>
-
-        <div className="footer-bottom">
-          <span>All rights reserved © Agile FLS ApS, 2025</span>
-        </div>
-      </footer>
+      <Footer />
 
       {/* Create Room Modal */}
       {showModal && (

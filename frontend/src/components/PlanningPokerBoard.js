@@ -6,6 +6,7 @@ import TeamMembers from './TeamMembers';
 import AIInsightPanel from './AIInsightPanel';
 import AnalyticsDashboard from './AnalyticsDashboard';
 import ChatPanel from './ChatPanel';
+import Footer from './Footer';
 
 const PlanningPokerBoard = ({ roomData, onBack }) => {
   const { socket, connected } = useSocket();
@@ -17,6 +18,9 @@ const PlanningPokerBoard = ({ roomData, onBack }) => {
   const [showAIPanel, setShowAIPanel] = useState(true);
   const [showAnalytics, setShowAnalytics] = useState(false);
   const [copyMessage, setCopyMessage] = useState('');
+  const [storyDescription, setStoryDescription] = useState(null);
+  const [descriptionInput, setDescriptionInput] = useState('');
+  const [shareMessage, setShareMessage] = useState('');
 
   const fibonacciValues = [1, 2, 3, 5, 8, 13, 21, '?'];
 
@@ -35,6 +39,9 @@ const PlanningPokerBoard = ({ roomData, onBack }) => {
       setMembers(data.members);
       if (data.estimates) {
         setEstimates(data.estimates);
+      }
+      if (data.storyDescription !== undefined) {
+        setStoryDescription(data.storyDescription);
       }
     });
 
@@ -62,6 +69,13 @@ const PlanningPokerBoard = ({ roomData, onBack }) => {
       setRevealed(false);
       setResults(null);
       setSelectedCard(null);
+      setStoryDescription(null);
+      setDescriptionInput('');
+    });
+
+    // Listen for story description updates
+    socket.on('story-description-updated', (data) => {
+      setStoryDescription(data.storyDescription);
     });
 
     // Listen for errors
@@ -75,6 +89,7 @@ const PlanningPokerBoard = ({ roomData, onBack }) => {
       socket.off('estimate-submitted');
       socket.off('estimates-revealed');
       socket.off('estimates-reset');
+      socket.off('story-description-updated');
       socket.off('error');
     };
   }, [socket, connected, roomData]);
@@ -105,6 +120,16 @@ const PlanningPokerBoard = ({ roomData, onBack }) => {
     socket.emit('reset-estimates', {
       roomId: roomData.roomId
     });
+  };
+
+  const handleSetStoryDescription = () => {
+    if (!descriptionInput.trim()) return;
+    socket.emit('set-story-description', {
+      roomId: roomData.roomId,
+      userId: roomData.userId,
+      storyDescription: descriptionInput.trim()
+    });
+    setDescriptionInput('');
   };
 
   const handleCopyLink = async () => {
@@ -141,6 +166,9 @@ const PlanningPokerBoard = ({ roomData, onBack }) => {
           </button>
           {copyMessage && <span className="copy-status">{copyMessage}</span>}
           <div className="toggle-buttons">
+          <button className="share-btn" onClick={handleCopyLink} title="Share invite link">
+            🔗 Share
+          </button>
           <button
             className={`toggle-btn ${showAIPanel ? 'active' : ''}`}
             onClick={() => {
@@ -169,24 +197,52 @@ const PlanningPokerBoard = ({ roomData, onBack }) => {
           {/* Team Members */}
           <TeamMembers members={members} />
 
-          {/* Fibonacci Cards */}
-          <div className="cards-section">
-            <h3 className="section-title">Select Your Estimate</h3>
-            <div className="cards-container">
-              {fibonacciValues.map((value) => (
-                <FibonacciCard
-                  key={value}
-                  value={value}
-                  selected={selectedCard === value}
-                  onSelect={handleCardSelect}
-                  disabled={revealed}
-                />
-              ))}
-            </div>
+          {/* Story Description */}
+          <div className="story-description-section">
+            {storyDescription ? (
+              <div className="story-description-display">
+                <h3>Story Description</h3>
+                <p>{storyDescription}</p>
+              </div>
+            ) : (
+              <div className="story-description-input">
+                <h3>Add Story Description</h3>
+                <div className="description-form">
+                  <textarea
+                    value={descriptionInput}
+                    onChange={(e) => setDescriptionInput(e.target.value)}
+                    placeholder="Describe the story to be estimated..."
+                    rows={3}
+                  />
+                  <button onClick={handleSetStoryDescription} disabled={!descriptionInput.trim()}>
+                    Set Description
+                  </button>
+                </div>
+                <p className="description-note">Anyone in the room can set the story description.</p>
+              </div>
+            )}
           </div>
 
+          {/* Fibonacci Cards */}
+          {storyDescription && (
+            <div className="cards-section">
+              <h3 className="section-title">Select Your Estimate</h3>
+              <div className="cards-container">
+                {fibonacciValues.map((value) => (
+                  <FibonacciCard
+                    key={value}
+                    value={value}
+                    selected={selectedCard === value}
+                    onSelect={handleCardSelect}
+                    disabled={revealed}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Reveal Button */}
-          {!revealed && (
+          {storyDescription && !revealed && (
             <motion.button
               className="reveal-button"
               onClick={handleReveal}
@@ -213,7 +269,7 @@ const PlanningPokerBoard = ({ roomData, onBack }) => {
           )}
 
           {/* Results Section */}
-          {revealed && results && (
+          {storyDescription && revealed && results && (
             <motion.div
               className="results-section"
               initial={{ opacity: 0, y: 20 }}
@@ -301,6 +357,8 @@ const PlanningPokerBoard = ({ roomData, onBack }) => {
           Reconnecting...
         </div>
       )}
+
+      <Footer />
     </div>
   );
 };
