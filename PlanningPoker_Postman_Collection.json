@@ -1,0 +1,160 @@
+{
+  "info": {
+    "name": "Planning Poker Production API",
+    "description": "API collection for testing Planning Poker application in production environment",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://pp-ten-mu.vercel.app",
+      "type": "string"
+    },
+    {
+      "key": "room_id",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/health",
+          "host": ["{{base_url}}"],
+          "path": ["api", "health"]
+        },
+        "description": "Check if the backend server is running and healthy"
+      },
+      "response": []
+    },
+    {
+      "name": "Create Room",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"roomName\": \"Sprint Planning\",\n  \"creatorName\": \"John Doe\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/rooms",
+          "host": ["{{base_url}}"],
+          "path": ["api", "rooms"]
+        },
+        "description": "Create a new planning poker room. The response will include a roomId that should be saved for other requests."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "if (pm.response.code === 200) {",
+              "    const response = pm.response.json();",
+              "    pm.collectionVariables.set('room_id', response.room.id);",
+              "    console.log('Room created with ID:', response.room.id);",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "response": []
+    },
+    {
+      "name": "Get Room Details",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/rooms/{{room_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["api", "rooms", "{{room_id}}"]
+        },
+        "description": "Get details of a specific room including members, estimates, and current state"
+      },
+      "response": []
+    },
+    {
+      "name": "AI Insight",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"roomId\": \"{{room_id}}\",\n  \"estimates\": [1, 2, 3, 5, 8],\n  \"storyDescription\": \"As a user, I want to login so that I can access my account\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/ai-insight",
+          "host": ["{{base_url}}"],
+          "path": ["api", "ai-insight"]
+        },
+        "description": "Get AI-powered insights and recommendations based on team estimates and story details"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Analytics",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/analytics/{{room_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["api", "analytics", "{{room_id}}"]
+        },
+        "description": "Get analytics data for a specific room including performance metrics and statistics"
+      },
+      "response": []
+    },
+    {
+      "name": "Test Socket.IO Connection",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/socket.io/?EIO=4&transport=polling",
+          "host": ["{{base_url}}"],
+          "path": ["socket.io", ""],
+          "query": [
+            {
+              "key": "EIO",
+              "value": "4"
+            },
+            {
+              "key": "transport",
+              "value": "polling"
+            }
+          ]
+        },
+        "description": "Test if Socket.IO server is responding (should return HTTP 400 which is expected for this test)"
+      },
+      "response": []
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Set timestamp for unique requests",
+          "pm.globals.set('timestamp', new Date().getTime());"
+        ]
+      }
+    }
+  ]
+}
