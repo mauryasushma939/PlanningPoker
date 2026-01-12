@@ -20,6 +20,6 @@
     }
   ],
   "env": {
-    "REACT_APP_API_URL": "https://your-backend-url.vercel.app"
+    "REACT_APP_API_URL": "https://pp-ten-mu.vercel.app"
   }
 }

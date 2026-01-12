@@ -2,6 +2,14 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import io from 'socket.io-client';
 
 const SOCKET_URL = process.env.REACT_APP_SOCKET_URL || 'http://localhost:5001';
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
+console.log('Environment variables:', {
+  REACT_APP_SOCKET_URL: process.env.REACT_APP_SOCKET_URL,
+  REACT_APP_API_URL: process.env.REACT_APP_API_URL,
+  SOCKET_URL,
+  API_URL
+});
 
 const SocketContext = createContext();
 
@@ -18,6 +26,10 @@ export const SocketProvider = ({ children }) => {
   const [connected, setConnected] = useState(false);
 
   useEffect(() => {
+    console.log('🔌 Initializing Socket.IO connection...');
+    console.log('SOCKET_URL:', SOCKET_URL);
+    console.log('API_URL:', API_URL);
+
     // Create socket connection
     const newSocket = io(SOCKET_URL, {
       transports: ['websocket'],
