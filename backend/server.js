@@ -10,7 +10,7 @@ const io = socketIo(server, {
   cors: {
     origin: process.env.NODE_ENV === 'production'
       ? process.env.SOCKET_CORS_ORIGIN?.split(',') || "*"
-      : "http://localhost:3000",
+      : "https://planningpoker-wghb.onrender.com/:5001",
     methods: ["GET", "POST"]
   }
 });
@@ -19,7 +19,7 @@ const io = socketIo(server, {
 app.use(cors({
   origin: process.env.NODE_ENV === 'production'
     ? process.env.CORS_ORIGIN?.split(',') || "*"
-    : "http://localhost:3000",
+    : "https://planningpoker-wghb.onrender.com/:5001",
   credentials: true
 }));
 app.use(express.json());
@@ -465,6 +465,7 @@ io.on('connection', (socket) => {
 });
 
 // Start server
+process.env.PORT = process.env.PORT || '5001';
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
