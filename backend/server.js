@@ -6,22 +6,9 @@ const { v4: uuidv4 } = require('uuid');
 
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(server, {
-  cors: {
-    origin: process.env.NODE_ENV === 'production'
-      ? process.env.SOCKET_CORS_ORIGIN?.split(',') || "*"
-      : "https://planningpoker-wghb.onrender.com/:5001",
-    methods: ["GET", "POST"]
-  }
-});
-
-// Middleware
-app.use(cors({
-  origin: process.env.NODE_ENV === 'production'
-    ? process.env.CORS_ORIGIN?.split(',') || "*"
-    : "https://planningpoker-wghb.onrender.com/:5001",
-  credentials: true
-}));
+const allowedOrigins = process.env.NODE_ENV === "production"
+  ? (process.env.CORS_ORIGIN || "").split(",").map(o => o.trim()).filter(Boolean)
+  : ["http://localhost:3000"];
 app.use(express.json());
 
 // In-memory storage
