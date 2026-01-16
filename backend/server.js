@@ -17,7 +17,7 @@ const io = socketIo(server, {
 
 // Middleware
 app.use(cors({
-  origin: "https://planning-poker-git-main-flspp.vercel.app",
+  origin: "*", 
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true
 }));
