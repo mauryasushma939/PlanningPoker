@@ -180,7 +180,7 @@ io.on('connection', (socket) => {
   console.log('New client connected:', socket.id);
 
   // User joins a room
-  socket.on('join-room', ({ roomId, userName, userId }) => {
+  socket.on('join-room', ({ roomId, userName, userId, role }) => {
     try {
       const room = rooms.get(roomId);
       
@@ -199,14 +199,15 @@ io.on('connection', (socket) => {
           id: userId,
           name: userName,
           socketId: socket.id,
-          status: 'Thinking',
-          online: true
+          status: role === 'observer' ? 'Watching' : 'Thinking',
+          online: true,
+          role: role || 'reviewer'
         };
         room.members.push(member);
       } else {
         existingMember.socketId = socket.id;
         existingMember.online = true;
-        existingMember.status = 'Thinking';
+        existingMember.status = existingMember.role === 'observer' ? 'Watching' : 'Thinking';
       }
 
       // Broadcast updated room state to all members
@@ -422,7 +423,7 @@ io.on('connection', (socket) => {
       // Reset member statuses
       room.members.forEach(member => {
         if (member.online) {
-          member.status = 'Thinking';
+          member.status = member.role === 'observer' ? 'Watching' : 'Thinking';
         }
       });
 

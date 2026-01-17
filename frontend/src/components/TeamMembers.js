@@ -60,9 +60,9 @@ const TeamMembers = ({ members }) => {
               <div className="member-name">{member.name}</div>
               <div
                 className="member-status"
-                style={{ color: getStatusColor(member.status) }}
+                style={{ color: member.role === 'observer' ? '#00ff88' : getStatusColor(member.status) }}
               >
-                {member.status}
+                {member.role === 'observer' ? 'Watching' : member.status}
               </div>
             </div>
           </motion.div>

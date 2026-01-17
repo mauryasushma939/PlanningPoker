@@ -37,11 +37,11 @@ const LandingPage = ({ onStartSession }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [joinRoomId, setJoinRoomId] = useState('');
-  const [joinRoomName, setJoinRoomName] = useState('');
+  // const [joinRoomName, setJoinRoomName] = useState('');
   const [joinUserName, setJoinUserName] = useState('');
   const [joinError, setJoinError] = useState('');
   const [joinLoading, setJoinLoading] = useState(false);
-
+  const [joinRole, setJoinRole] = useState('reviewer');
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const inviteCode = params.get('invite');
@@ -93,6 +93,7 @@ const LandingPage = ({ onStartSession }) => {
       setJoinError('Room ID and your name are required');
       return;
     }
+  // Pass role to session/join logic as needed
 
     setJoinLoading(true);
     try {
@@ -100,13 +101,15 @@ const LandingPage = ({ onStartSession }) => {
       const room = response.data.room;
 
       const userId = `user-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-      const resolvedRoomName = room?.name || joinRoomName || joinRoomId.trim();
+      const resolvedRoomName = room?.name || joinRoomId.trim();
+  // You may want to pass joinRole to the backend or context here
 
       onStartSession({
         roomId: joinRoomId.trim(),
         roomName: resolvedRoomName,
         userName: joinUserName.trim(),
-        userId
+        userId,
+        role: joinRole
       });
     } catch (err) {
       console.error('Error joining room:', err);
@@ -335,28 +338,7 @@ const LandingPage = ({ onStartSession }) => {
                 <button className="close-join" onClick={() => setShowJoin(false)}>×</button>
               </div>
               <form onSubmit={handleJoinRoom} className="join-form">
-                <div className="form-group">
-                  <label htmlFor="joinRoomId">Room ID</label>
-                  <input
-                    type="text"
-                    id="joinRoomId"
-                    value={joinRoomId}
-                    onChange={(e) => setJoinRoomId(e.target.value)}
-                    placeholder="e.g., ab12cd34"
-                    disabled={joinLoading}
-                  />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="joinRoomName">Room Name (optional)</label>
-                  <input
-                    type="text"
-                    id="joinRoomName"
-                    value={joinRoomName}
-                    onChange={(e) => setJoinRoomName(e.target.value)}
-                    placeholder="Helps teammates identify the room"
-                    disabled={joinLoading}
-                  />
-                </div>
+
                 <div className="form-group">
                   <label htmlFor="joinUserName">Your Name</label>
                   <input
@@ -367,6 +349,35 @@ const LandingPage = ({ onStartSession }) => {
                     placeholder="e.g., Jane Smith"
                     disabled={joinLoading}
                   />
+                </div>
+                <div className="form-group role-group">
+                  <span className="role-label">Role:</span>
+                  <div className="role-radio-row">
+                    <label className="role-radio">
+                      <input
+                        type="radio"
+                        name="joinRole"
+                        value="reviewer"
+                        checked={joinRole === 'reviewer'}
+                        onChange={() => setJoinRole('reviewer')}
+                        disabled={joinLoading}
+                      />
+                      <span className="custom-radio"></span>
+                      Reviewer
+                    </label>
+                    <label className="role-radio">
+                      <input
+                        type="radio"
+                        name="joinRole"
+                        value="observer"
+                        checked={joinRole === 'observer'}
+                        onChange={() => setJoinRole('observer')}
+                        disabled={joinLoading}
+                      />
+                      <span className="custom-radio"></span>
+                      Observer
+                    </label>
+                  </div>
                 </div>
                 {joinError && <div className="error-message">{joinError}</div>}
                 <div className="modal-actions">

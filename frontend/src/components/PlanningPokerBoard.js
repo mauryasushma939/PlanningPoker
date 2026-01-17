@@ -17,6 +17,7 @@ const PlanningPokerBoard = ({ roomData, onBack }) => {
   const [results, setResults] = useState(null);
   const [showAIPanel, setShowAIPanel] = useState(true);
   const [showAnalytics, setShowAnalytics] = useState(false);
+  const userRole = roomData.role || 'reviewer';
   const [copyMessage, setCopyMessage] = useState('');
   const [storyDescription, setStoryDescription] = useState(null);
   const [descriptionInput, setDescriptionInput] = useState('');
@@ -30,7 +31,8 @@ const PlanningPokerBoard = ({ roomData, onBack }) => {
     socket.emit('join-room', {
       roomId: roomData.roomId,
       userName: roomData.userName,
-      userId: roomData.userId
+      userId: roomData.userId,
+      role: roomData.role || 'reviewer'
     });
 
     // Listen for room updates
@@ -94,7 +96,7 @@ const PlanningPokerBoard = ({ roomData, onBack }) => {
   }, [socket, connected, roomData]);
 
   const handleCardSelect = (value) => {
-    if (revealed) return;
+    if (revealed || userRole === 'observer') return;
 
     setSelectedCard(value);
     socket.emit('submit-estimate', {
@@ -157,7 +159,7 @@ const PlanningPokerBoard = ({ roomData, onBack }) => {
         </button>
         <div className="room-info">
           <h2>{roomData.roomName}</h2>
-          <span className="room-id">Room ID: {roomData.roomId}</span>
+
         </div>
         <div className="header-actions">
           <button className="copy-link-btn" onClick={handleCopyLink}>
@@ -233,10 +235,13 @@ const PlanningPokerBoard = ({ roomData, onBack }) => {
                     value={value}
                     selected={selectedCard === value}
                     onSelect={handleCardSelect}
-                    disabled={revealed}
+                    disabled={revealed || userRole === 'observer'}
                   />
                 ))}
               </div>
+              {userRole === 'observer' && (
+                <div style={{color:'#fff',marginTop:'0.5rem',fontWeight:500,fontSize:'1rem',textAlign:'center'}}>Observers cannot estimate stories.</div>
+              )}
             </div>
           )}
 
