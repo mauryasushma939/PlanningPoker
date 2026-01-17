@@ -19,8 +19,8 @@ const Footer = () => {
         </div>
 
         <div className="footer-column">
-          <h4>Social Media</h4>
-          <span>LinkedIn</span>
+          <h4>FLS Tools </h4>
+          <span> <a href='https://fls-xier.vercel.app/' target='_blank' rel='noopener noreferrer'>Game</a></span>
           <span>Twitter</span>
         </div>
 
