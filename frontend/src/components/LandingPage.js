@@ -9,18 +9,18 @@ const LandingPage = ({ onStartSession }) => {
   const leftFeatures = [
     { title: 'Easy to get started', icon: '🚀', body: 'Type in your name to create a planning poker room and share the room through a unique link.' },
     { title: 'Desktop & mobile', icon: '💻', body: 'Runs in the browser and fits the screen of your mobile or desktop PC.' },
-    { title: 'Configurable cards', icon: '🃏', body: 'Customize the deck to fit your needs. Remove half-points if you do not use them.' }
+    { title: 'No Login Needed', icon: '🆓', body: 'Create room & start instantly' }
   ];
 
   const rightFeatures = [
     { title: 'Moderator control', icon: '🧭', body: 'Moderators stay in control and can reveal team estimates whenever needed.' },
-    { title: 'Moderation handover', icon: '🔄', body: 'Hand over moderation to other players when you need to share control.' },
+    { title: 'Instant Estimation', icon: '⚡️', body: 'Real-time voting with team group chat.' },
     { title: 'Reusable rooms', icon: '♻️', body: 'Reuse the same invite link for recurring sessions and save setup time.' }
   ];
 
   const testimonials = [
-    { quote: 'Finally a planning poker tool that stays out of the way.', name: 'Agile Coach' },
-    { quote: '30 seconds from link to reveal—perfect for remote grooming.', name: 'Scrum Master' }
+    { quote: 'Loved by Scrum Masters and ★★★★★', name: 'Agile Coach' },
+    { quote: 'Used by Agile teams & QA engineers', name: 'Scrum Master' }
   ];
 
   const audienceReasons = [
@@ -130,7 +130,7 @@ const LandingPage = ({ onStartSession }) => {
         transition={{ duration: 0.8 }}
       >
         <div className="top-nav">
-          <div className="nav-brand">Planning Poker</div>
+          <div className="nav-brand">FLS Fun-Learn-Succeed </div>
           <div className="nav-links">
             <a href="#features">Features</a>
             <a href="#audience">Audience</a>
@@ -145,7 +145,7 @@ const LandingPage = ({ onStartSession }) => {
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.2 }}
             >
-              POKER
+              FLS Planning Poker
             </motion.h1>
             
             <motion.p
@@ -498,6 +498,7 @@ const LandingPage = ({ onStartSession }) => {
         viewport={{ once: true }}
         transition={{ duration: 0.8 }}
       >
+
         <div className="audience-grid">
           <motion.div
             className="audience-phone"

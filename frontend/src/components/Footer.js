@@ -5,9 +5,9 @@ const Footer = () => {
     <footer id="contact" className="footer-section">
       <div className="footer-grid">
         <div className="footer-column">
-          <div className="footer-logo">Agile<br />FLS</div>
+          <div className="footer-logo">Agile</div>
           <p className="footer-text">
-            Agile FLS is a one man army with a passion for building and leading strong teams towards
+            Agile is a one man army with a passion for building and leading strong teams towards
             happiness and success.
           </p>
         </div>
@@ -26,14 +26,13 @@ const Footer = () => {
 
         <div className="footer-column">
           <h4>Support</h4>
-          <span>FAQ</span>
           <span>Why Planning Poker?</span>
-          <a href="mailto:support@fls.com">support@fls.com</a>
+          <a href="mailto:support@fls.com">support@pp_fls.com</a>
         </div>
       </div>
 
       <div className="footer-bottom">
-        <span>All rights reserved © Agile FLS ApS, 2026</span>
+        <span>All rights reserved © FLS Pointing Pocker @2026</span>
       </div>
     </footer>
   );
