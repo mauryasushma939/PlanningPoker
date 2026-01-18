@@ -1,3 +1,15 @@
+.nav-brand-title {
+  font-weight: 800;
+  font-size: 1.25rem;
+  letter-spacing: -0.5px;
+  display: inline-block;
+}
+
+@media (max-width: 768px) {
+  .nav-brand-title {
+    display: none;
+  }
+}
 /* Role radio group modern style */
 .role-group {
   margin-top: 1.5rem;
@@ -131,6 +143,10 @@ body {
   gap: 18px;
   font-weight: 600;
   font-size: 0.95rem;
+  visibility: visible !important;
+  opacity: 1 !important;
+  color: #fff !important;
+  z-index: 100;
 }
 
 .nav-links a {
@@ -173,12 +189,61 @@ body {
 }
 
 .hero-title {
-  font-size: 3.6rem;
+  font-size: 2.6rem;
   font-weight: 900;
   line-height: 1.1;
   margin-bottom: 24px;
   letter-spacing: -1px;
+  display: flex;
+  gap: 0.5em;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: flex-start;
 }
+
+.hero-title-mobile {
+  display: none;
+}
+.hero-title-desktop {
+  display: flex;
+}
+
+@media (max-width: 768px) {
+  .hero-title {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 0.1em;
+    font-size: 2rem;
+  }
+  .hero-title-desktop {
+    display: none !important;
+  }
+  .hero-title-mobile {
+    display: block;
+    margin-bottom: 0.2em;
+    text-align: center;
+  }
+  .hero-title-mobile span {
+    display: block;
+    width: 100%;
+    text-align: center;
+    font-size: 2.1rem;
+    font-weight: 900;
+    margin-bottom: 0.15em;
+  }
+  .mobile-fun {
+    color: #00d9ff;
+  }
+  .mobile-learn {
+    color: #b794f6;
+  }
+  .mobile-succeed {
+    color: #ffd15c;
+  }
+}
+
 
 .hero-subtitle {
   font-size: 1.1rem;
@@ -236,6 +301,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-top: 60px; /* Pushes the mockup image down */
 }
 
 .laptop-mockup {

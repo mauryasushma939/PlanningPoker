@@ -130,7 +130,10 @@ const LandingPage = ({ onStartSession }) => {
         transition={{ duration: 0.8 }}
       >
         <div className="top-nav">
-          <div className="nav-brand">FLS Fun-Learn-Succeed </div>
+          <div className="nav-brand" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <img src="/fls-logo.svg" alt="FLS Planning Poker Logo" style={{ height: '38px', width: '38px' }} />
+            <span className="nav-brand-title">FLS Planning Poker</span>
+          </div>
           <div className="nav-links">
             <a href="#features">Features</a>
             <a href="#audience">Audience</a>
@@ -141,11 +144,60 @@ const LandingPage = ({ onStartSession }) => {
           <div className="hero-content">
             <motion.h1
               className="hero-title"
-              initial={{ y: -50, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
+              style={{ display: 'flex', gap: '0.5em', flexWrap: 'wrap' }}
             >
-              FLS Planning Poker
+              <span className="hero-title-desktop" style={{ display: 'flex', gap: '0.5em', flexWrap: 'wrap' }}>
+                <motion.span
+                  initial={{ y: -40, opacity: 0 }}
+                  animate={{ y: [0, -10, 0], opacity: 1 }}
+                  transition={{ duration: 1.2, delay: 0.2, repeat: Infinity, repeatType: 'reverse' }}
+                  style={{ color: '#00d9ff', fontWeight: 900 }}
+                >
+                  Fun
+                </motion.span>
+                <motion.span
+                  initial={{ y: 40, opacity: 0 }}
+                  animate={{ y: [0, 10, 0], opacity: 1 }}
+                  transition={{ duration: 1.4, delay: 0.4, repeat: Infinity, repeatType: 'reverse' }}
+                  style={{ color: '#b794f6', fontWeight: 900 }}
+                >
+                  Learn
+                </motion.span>
+                <motion.span
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: [1, 1.15, 1], opacity: 1 }}
+                  transition={{ duration: 1.6, delay: 0.6, repeat: Infinity, repeatType: 'reverse' }}
+                  style={{ color: '#ffd15c', fontWeight: 900 }}
+                >
+                  Succeed
+                </motion.span>
+              </span>
+              <span className="hero-title-mobile">
+                <motion.span
+                  className="mobile-fun"
+                  initial={{ x: -30, opacity: 0 }}
+                  animate={{ x: [0, -8, 0], opacity: 1 }}
+                  transition={{ duration: 1.2, repeat: Infinity, repeatType: 'reverse' }}
+                >
+                  Fun
+                </motion.span>
+                <motion.span
+                  className="mobile-learn"
+                  initial={{ x: 30, opacity: 0 }}
+                  animate={{ x: [0, 8, 0], opacity: 1 }}
+                  transition={{ duration: 1.4, delay: 0.2, repeat: Infinity, repeatType: 'reverse' }}
+                >
+                  Learn
+                </motion.span>
+                <motion.span
+                  className="mobile-succeed"
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: [1, 1.12, 1], opacity: 1 }}
+                  transition={{ duration: 1.6, delay: 0.4, repeat: Infinity, repeatType: 'reverse' }}
+                >
+                  Succeed
+                </motion.span>
+              </span>
             </motion.h1>
             
             <motion.p
@@ -154,7 +206,7 @@ const LandingPage = ({ onStartSession }) => {
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.4 }}
             >
-              Simple online planning poker app that will speed up estimation in remote planning sessions
+              FLS Planning Poker is a simple, real-time online planning poker app designed to make remote estimation sessions faster, clearer, and more enjoyable for Agile teams.
             </motion.p>
 
             <div className="cta-row">
@@ -515,7 +567,7 @@ const LandingPage = ({ onStartSession }) => {
                 <span className="audience-rooms">Rooms</span>
               </div>
               <div className="audience-player-list">
-                <div className="audience-player"><span className="dot red" />Keta<span className="player-score">3</span></div>
+                <div className="audience-player"><span className="dot red" />Tapan <span className="player-score">3</span></div>
                 <div className="audience-player"><span className="dot purple" />Kuldip<span className="player-score">8</span></div>
                 <div className="audience-player"><span className="dot yellow" />Viren<span className="player-score">5</span></div>
               </div>

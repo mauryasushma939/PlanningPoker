@@ -390,12 +390,13 @@ io.on('connection', (socket) => {
       const roomAnalytics = analytics.get(roomId);
       if (roomAnalytics) {
         roomAnalytics.totalStories += 1;
-        if (consensus) {
-          roomAnalytics.consensusRate = Math.min(
-            100,
-            roomAnalytics.consensusRate + 1
-          );
-        }
+        // Track consensus count and total votes for accurate rate
+        roomAnalytics.consensusCount = (roomAnalytics.consensusCount || 0) + (consensus ? 1 : 0);
+        roomAnalytics.voteRounds = (roomAnalytics.voteRounds || 0) + 1;
+        roomAnalytics.consensusRate = roomAnalytics.voteRounds > 0
+          ? Math.round((roomAnalytics.consensusCount / roomAnalytics.voteRounds) * 100)
+          : 0;
+        // Optionally update avgTime, aiAcceptance, etc. here if needed
       }
 
       console.log(`Estimates revealed in room ${roomId}`);
