@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { SocketProvider } from './contexts/SocketContext';
 import LandingPage from './components/LandingPage';
 import PlanningPokerBoard from './components/PlanningPokerBoard';
+import Header from './components/Header';
 
 function InactivityPopup({ show, onClose }) {
   if (!show) return null;
@@ -76,6 +77,7 @@ function App() {
   return (
     <SocketProvider>
       <div className="App">
+        <Header />
         <InactivityPopup show={showInactive} onClose={() => setShowInactive(false)} />
         {currentView === 'landing' ? (
           <LandingPage onStartSession={handleStartSession} />

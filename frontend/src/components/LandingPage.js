@@ -129,17 +129,6 @@ const LandingPage = ({ onStartSession }) => {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
       >
-        <div className="top-nav">
-          <div className="nav-brand" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <img src="/fls-logo.svg" alt="FLS Planning Poker Logo" style={{ height: '38px', width: '38px' }} />
-            <span className="nav-brand-title">FLS Planning Poker</span>
-          </div>
-          <div className="nav-links">
-            <a href="#features">Features</a>
-            <a href="#audience">Audience</a>
-            <a href="#contact">Contact</a>
-          </div>
-        </div>
         <div className="hero-inner">
           <div className="hero-content">
             <motion.h1
@@ -221,9 +210,8 @@ const LandingPage = ({ onStartSession }) => {
               >
                 Get Started Now
               </motion.button>
-
               <motion.button
-                className="cta-button secondary"
+                className="cta-button secondary join-room-btn"
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ duration: 0.5, delay: 0.8 }}
