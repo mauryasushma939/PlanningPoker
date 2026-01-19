@@ -1,9 +1,0 @@
-<svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="44" height="44" rx="12" fill="#07C2C9"/>
-  <g>
-    <circle cx="14" cy="22" r="6" fill="#fff" stroke="#00D9FF" stroke-width="2"/>
-    <circle cx="30" cy="22" r="6" fill="#fff" stroke="#FFD15C" stroke-width="2"/>
-    <circle cx="22" cy="14" r="6" fill="#fff" stroke="#B794F6" stroke-width="2"/>
-    <text x="22" y="36" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="8" fill="#fff" font-weight="bold">FLS</text>
-  </g>
-</svg>
