@@ -12,7 +12,15 @@ const Header = () => {
              src="/logo.png"
              alt="FLS Planning Poker Logo"
              style={{ height: '40px', width: '40px', borderRadius: '8px', display: 'inline-block' }}
-             onError={(e) => { e.currentTarget.src = '/favicon.svg'; }}
+             onError={(e) => {
+               const img = e.currentTarget;
+               if (!img.dataset.fallback) {
+                 img.dataset.fallback = '1';
+                 img.src = '/favicon.svg';
+                 return;
+               }
+               img.style.display = 'none';
+             }}
              loading="eager"
              decoding="async"
              fetchpriority="high"
