@@ -357,6 +357,9 @@ body {
 }
 
 @media (max-width: 768px) {
+  .hero-section {
+    padding-top: 28px;
+  }
   .hero-title {
     flex-direction: column;
     align-items: center;
