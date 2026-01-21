@@ -8,7 +8,15 @@ const Header = () => {
   return (
     <header className="top-nav sticky-header">
       <div className="nav-brand" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-        <img src="/logo.png" alt="FLS Planning Poker Logo" style={{ height: '38px', width: '38px' }} />
+           <img
+             src="/logo.png"
+             alt="FLS Planning Poker Logo"
+             style={{ height: '40px', width: '40px', borderRadius: '8px', display: 'inline-block' }}
+             onError={(e) => { e.currentTarget.src = '/favicon.svg'; }}
+             loading="eager"
+             decoding="async"
+             fetchpriority="high"
+           />
         <span style={{ fontSize: '1.5rem', fontWeight: 600, color: '#fff', letterSpacing: '0.02em', whiteSpace: 'nowrap' }}>Planning Poker</span>
         <button className="mobile-menu-btn" aria-label="Menu" onClick={() => setMenuOpen(m => !m)}>
           <span className="menu-bar"></span>
