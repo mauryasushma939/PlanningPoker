@@ -38,7 +38,6 @@ const Header = () => {
         <a href="#contact">Contact</a>
         <a href="/about">About</a>
         <a href="/faq">FAQ</a>
-        <a href="/pricing">Pricing</a>
       </nav>
     </header>
   );

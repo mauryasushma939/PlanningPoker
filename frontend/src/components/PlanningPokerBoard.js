@@ -21,6 +21,7 @@ const PlanningPokerBoard = ({ roomData, onBack }) => {
   const [copyMessage, setCopyMessage] = useState('');
   const [storyDescription, setStoryDescription] = useState(null);
   const [descriptionInput, setDescriptionInput] = useState('');
+  const [isEditingDescription, setIsEditingDescription] = useState(false);
 
   const fibonacciValues = [1, 2, 3, 5, 8, 13, 21, '?'];
 
@@ -72,6 +73,7 @@ const PlanningPokerBoard = ({ roomData, onBack }) => {
       setSelectedCard(null);
       setStoryDescription(null);
       setDescriptionInput('');
+      setIsEditingDescription(false);
     });
 
     // Listen for story description updates
@@ -131,6 +133,17 @@ const PlanningPokerBoard = ({ roomData, onBack }) => {
       storyDescription: descriptionInput.trim()
     });
     setDescriptionInput('');
+    setIsEditingDescription(false);
+  };
+
+  const startEditStoryDescription = () => {
+    setDescriptionInput(storyDescription || '');
+    setIsEditingDescription(true);
+  };
+
+  const cancelEditStoryDescription = () => {
+    setDescriptionInput('');
+    setIsEditingDescription(false);
   };
 
   const handleCopyLink = async () => {
@@ -195,33 +208,63 @@ const PlanningPokerBoard = ({ roomData, onBack }) => {
       <div className="board-content">
         {/* Main Board */}
         <div className="main-board">
-          {/* Team Members */}
-          <TeamMembers members={members} />
+          <div className="planning-top-panels">
+            {/* Team Members */}
+            <TeamMembers members={members} />
 
-          {/* Story Description */}
-          <div className="story-description-section">
-            {storyDescription ? (
-              <div className="story-description-display">
-                <h3>Story Description</h3>
-                <p>{storyDescription}</p>
-              </div>
-            ) : (
-              <div className="story-description-input">
-                <h3>Add Story Description</h3>
-                <div className="description-form">
-                  <textarea
-                    value={descriptionInput}
-                    onChange={(e) => setDescriptionInput(e.target.value)}
-                    placeholder="Describe the story to be estimated..."
-                    rows={3}
-                  />
-                  <button onClick={handleSetStoryDescription} disabled={!descriptionInput.trim()}>
-                    Set Description
-                  </button>
+            {/* Story Description */}
+            <div className="story-description-section">
+              {storyDescription ? (
+                <div className="story-description-display">
+                  <div className="story-description-header">
+                    <h3>Story Description</h3>
+                    {!isEditingDescription && (
+                      <button className="story-edit-btn" type="button" onClick={startEditStoryDescription}>
+                        Edit
+                      </button>
+                    )}
+                  </div>
+
+                  {!isEditingDescription ? (
+                    <p>{storyDescription}</p>
+                  ) : (
+                    <div className="description-form">
+                      <textarea
+                        value={descriptionInput}
+                        onChange={(e) => setDescriptionInput(e.target.value)}
+                        placeholder="Update the story description..."
+                        rows={3}
+                      />
+                      <div className="description-actions">
+                        <button onClick={handleSetStoryDescription} disabled={!descriptionInput.trim()}>
+                          Update Story
+                        </button>
+                        <button className="story-cancel-btn" type="button" onClick={cancelEditStoryDescription}>
+                          Cancel
+                        </button>
+                      </div>
+                      <p className="description-note">Anyone in the room can update the story description.</p>
+                    </div>
+                  )}
                 </div>
-                <p className="description-note">Anyone in the room can set the story description.</p>
-              </div>
-            )}
+              ) : (
+                <div className="story-description-input">
+                  <h3>Add Story Description</h3>
+                  <div className="description-form">
+                    <textarea
+                      value={descriptionInput}
+                      onChange={(e) => setDescriptionInput(e.target.value)}
+                      placeholder="Describe the story to be estimated..."
+                      rows={3}
+                    />
+                    <button onClick={handleSetStoryDescription} disabled={!descriptionInput.trim()}>
+                      Set Description
+                    </button>
+                  </div>
+                  <p className="description-note">Anyone in the room can set the story description.</p>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Fibonacci Cards */}
