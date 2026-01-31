@@ -29,7 +29,7 @@ function InactivityPopup({ show, onClose }) {
         minWidth: 320
       }}>
         <h2 style={{marginBottom: '1rem'}}>Seems like you're not active!</h2>
-        <p style={{marginBottom: '2rem'}}>You have been inactive for 10 minutes.</p>
+        <p style={{marginBottom: '2rem'}}>You have been inactive for 15 minutes.</p>
         <button onClick={onClose} style={{padding: '0.7rem 2.2rem', fontSize: '1.1rem', borderRadius: 8, background: '#00d9ff', color: '#fff', border: 'none', cursor: 'pointer'}}>OK</button>
       </div>
     </div>
@@ -50,7 +50,7 @@ function App() {
     useEffect(() => {
       const resetTimer = () => {
         if (timerRef.current) clearTimeout(timerRef.current);
-        timerRef.current = setTimeout(() => setShowInactive(true), 10 * 60 * 1000); // 10 min
+        timerRef.current = setTimeout(() => setShowInactive(true), 15 * 60 * 1000); // 15 min
         setShowInactive(false);
       };
       const events = ['mousemove', 'mousedown', 'keydown', 'scroll', 'touchstart'];

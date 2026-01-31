@@ -8,14 +8,18 @@ const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
 const AnalyticsDashboard = ({ roomId }) => {
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const fetchAnalytics = async () => {
     setLoading(true);
+    setError('');
     try {
       const response = await axios.get(`${API_URL}/api/analytics/${roomId}`);
       setAnalytics(response.data.analytics);
     } catch (error) {
       console.error('Error fetching analytics:', error);
+      const message = error?.response?.data?.error || error?.message || 'Failed to load analytics';
+      setError(message);
     } finally {
       setLoading(false);
     }
@@ -38,7 +42,22 @@ const AnalyticsDashboard = ({ roomId }) => {
     );
   }
 
-  if (!analytics) return null;
+  if (!analytics) {
+    return (
+      <div className="analytics-dashboard">
+        <div className="panel-header">
+          <span className="panel-icon">📊</span>
+          <h3>Analytics</h3>
+          <button className="refresh-btn" onClick={fetchAnalytics} disabled={loading}>
+            {loading ? '↻' : '⟳'}
+          </button>
+        </div>
+        <div style={{ color: '#e5ecff', fontWeight: 600, fontSize: '0.95rem', lineHeight: 1.5 }}>
+          {error ? `Unable to load analytics: ${error}` : 'No analytics available yet.'}
+        </div>
+      </div>
+    );
+  }
 
   const metrics = [
     { label: 'Total Stories', value: analytics.metrics.totalStories, icon: '📝' },

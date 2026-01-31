@@ -2,6 +2,9 @@ import React from 'react';
 import { motion } from 'framer-motion';
 
 const TeamMembers = ({ members }) => {
+  const onlineCount = members.filter((m) => m && m.online).length;
+  const offlineCount = Math.max(0, members.length - onlineCount);
+
   const getStatusColor = (status) => {
     switch (status) {
       case 'Voted':
@@ -26,9 +29,11 @@ const TeamMembers = ({ members }) => {
     <div className="team-members-section">
       <div className="team-members-header">
         <h3>Team Members</h3>
-        <span className="member-count">{members.length} online</span>
+        <span className="member-count">
+              {onlineCount} online{offlineCount > 0 ? ` • ${offlineCount} offline` : ''}
+        </span>
       </div>
-      <div className="team-members-list">
+      <div className={`team-members-list${members.length > 10 ? ' team-members-list--scroll' : ''}`}>
         {members.map((member, index) => (
           <motion.div
             key={member.id}

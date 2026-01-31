@@ -118,7 +118,7 @@ const LandingPage = ({ onStartSession }) => {
       setJoinLoading(false);
     }
   };
-  const fibonacciCards = [1, 2, 3, 5, 8, 13];
+  const fibonacciCards = [0, 0.5, 1, 2, 3, 5, 8, '?'];
 
   return (
     <div className="landing-page">
@@ -279,7 +279,7 @@ const LandingPage = ({ onStartSession }) => {
             >
               <div className="mobile-screen">
                 <div className="mobile-cards">
-                  {[3, 5, 8].map((value) => (
+                  {[3, 5, '?'].map((value) => (
                     <div key={value} className="mobile-card">{value}</div>
                   ))}
                 </div>
@@ -507,7 +507,7 @@ const LandingPage = ({ onStartSession }) => {
                   </div>
                 </div>
                 <div className="key-cards-grid">
-                  {['0', '1/2', '1', '2', '3', '5', '8', '13', '20', '40', '100', '?'].map((card) => (
+                  {['0', '0.5', '1', '2', '3', '5', '?', '20', '40', '100'].map((card) => (
                     <div key={card} className="key-card">{card}</div>
                   ))}
                 </div>
@@ -556,7 +556,7 @@ const LandingPage = ({ onStartSession }) => {
               </div>
               <div className="audience-player-list">
                 <div className="audience-player"><span className="dot red" />Tapan <span className="player-score">3</span></div>
-                <div className="audience-player"><span className="dot purple" />Kuldip<span className="player-score">8</span></div>
+                <div className="audience-player"><span className="dot purple" />Kuldip<span className="player-score">?</span></div>
                 <div className="audience-player"><span className="dot yellow" />Viren<span className="player-score">5</span></div>
               </div>
               <div className="audience-chart">
@@ -564,7 +564,7 @@ const LandingPage = ({ onStartSession }) => {
                 <div className="audience-chart-labels">
                   <span>5</span>
                   <span>3</span>
-                  <span>8</span>
+                  <span>?</span>
                 </div>
               </div>
             </div>

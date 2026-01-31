@@ -98,9 +98,13 @@ app.post('/api/ai-insight', (req, res) => {
     const { roomId, storyDescription } = req.body;
 
     // Simulate AI processing with realistic data
-    const fibonacciNumbers = [1, 2, 3, 5, 8, 13, 21];
-    const suggestedEstimate = fibonacciNumbers[Math.floor(Math.random() * fibonacciNumbers.length)];
+    const estimateScale = [0, 0.5, 1, 2, 3, 5, 8];
+    const suggestedEstimate = estimateScale[Math.floor(Math.random() * estimateScale.length)];
     const confidence = Math.floor(Math.random() * 20) + 75; // 75-95%
+
+    const index = estimateScale.indexOf(suggestedEstimate);
+    const lower = estimateScale[Math.max(0, index - 1)];
+    const higher = estimateScale[Math.min(estimateScale.length - 1, index + 1)];
 
     const insight = {
       suggestedEstimate,
@@ -116,12 +120,12 @@ app.post('/api/ai-insight', (req, res) => {
         },
         {
           name: 'Payment gateway integration',
-          estimate: suggestedEstimate === 1 ? 2 : suggestedEstimate - 1,
+          estimate: lower,
           accuracy: Math.floor(Math.random() * 15) + 80
         },
         {
           name: 'Dashboard analytics panel',
-          estimate: suggestedEstimate === 21 ? 13 : suggestedEstimate + (suggestedEstimate <= 8 ? 1 : 8),
+          estimate: higher,
           accuracy: Math.floor(Math.random() * 15) + 82
         }
       ]
@@ -348,8 +352,8 @@ io.on('connection', (socket) => {
 
       room.revealed = true;
 
-      // Calculate average (excluding '?' votes)
-      const numericEstimates = Object.values(room.estimates).filter(e => e !== '?').map(Number);
+      // Calculate average (excluding non-numeric votes)
+      const numericEstimates = Object.values(room.estimates).map(Number).filter(Number.isFinite);
       const average = numericEstimates.length > 0
         ? (numericEstimates.reduce((a, b) => a + b, 0) / numericEstimates.length).toFixed(1)
         : 0;

@@ -1623,11 +1623,87 @@ body {
 /* Board Header */
 .board-header {
   display: flex;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 16px;
+  padding: 18px;
+  margin-bottom: 26px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(0, 217, 255, 0.14);
+  box-shadow:
+    0 16px 36px rgba(15, 27, 45, 0.10),
+    0 1px 0 rgba(255, 255, 255, 0.35) inset;
+  backdrop-filter: blur(10px);
+}
+
+/* Room badge (replaces Back button slot) */
+.room-badge {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   align-items: center;
-  justify-content: space-between;
-  padding: 20px 0;
-  margin-bottom: 30px;
-  border-bottom: 1px solid rgba(0, 217, 255, 0.2);
+  text-align: center;
+  gap: 8px;
+  padding: 14px 18px;
+  border-radius: 16px;
+  background:
+    radial-gradient(120% 140% at 10% 0%, rgba(0, 217, 255, 0.16) 0%, rgba(0, 217, 255, 0.00) 55%),
+    radial-gradient(120% 140% at 100% 100%, rgba(183, 148, 246, 0.16) 0%, rgba(183, 148, 246, 0.00) 55%),
+    linear-gradient(160deg, #0f1524 0%, #0c1928 60%, #0f1524 100%);
+  border: 1px solid rgba(0, 217, 255, 0.34);
+  box-shadow:
+    0 0 0 1px rgba(0, 217, 255, 0.10) inset,
+    0 18px 44px rgba(0, 0, 0, 0.32),
+    0 0 28px rgba(0, 217, 255, 0.16);
+  max-width: 380px;
+  align-self: stretch;
+}
+
+.room-badge::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(0, 217, 255, 0.28), rgba(183, 148, 246, 0.22), rgba(0, 217, 255, 0.10));
+  opacity: 0.20;
+  mix-blend-mode: screen;
+}
+
+.room-badge-label {
+  align-self: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(0, 217, 255, 0.18);
+  font-size: 0.70rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(229, 236, 255, 0.78);
+}
+
+.room-badge-name {
+  position: relative;
+  z-index: 1;
+  font-size: 1.12rem;
+  font-weight: 900;
+  color: #e5ecff;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@supports (-webkit-background-clip: text) or (background-clip: text) {
+  .room-badge-name {
+    background: linear-gradient(135deg, #00d9ff 0%, #b794f6 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
 }
 
 .back-button {
@@ -1657,8 +1733,162 @@ body {
 }
 
 .room-info {
-  text-align: center;
   flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: stretch;
+  padding-left: 18px;
+  border-left: 1px solid rgba(0, 217, 255, 0.16);
+}
+
+.header-story {
+  width: 100%;
+  flex: 1;
+  max-width: none;
+}
+
+/* Keep header story compact (do NOT increase size) */
+.story-description-section.story-description-compact {
+  padding: 14px;
+  border-radius: 14px;
+}
+
+.story-description-section.story-description-compact .story-description-display h3,
+.story-description-section.story-description-compact .story-description-input h3 {
+  font-size: 1.05rem;
+}
+
+.story-description-section.story-description-compact .story-description-header {
+  justify-content: center;
+}
+
+.story-description-section.story-description-compact .story-description-header h3 {
+  width: 100%;
+  text-align: center;
+}
+
+.story-description-section.story-description-compact .story-description-content {
+  margin-top: 10px;
+}
+
+/* In compact header mode, ensure edit view doesn't shrink textarea width */
+.story-description-section.story-description-compact .description-form {
+  width: 100%;
+  align-items: stretch;
+}
+
+/* Unified field + actions: Add/Edit/Update live in same place */
+.story-description-section.story-description-compact .story-field {
+  position: relative;
+  width: 100%;
+}
+
+.story-description-section.story-description-compact .story-field-actions {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  display: inline-flex;
+  gap: 10px;
+  z-index: 2;
+}
+
+.story-description-section.story-description-compact textarea {
+  padding-right: 170px;
+}
+
+/* Edit mode: textarea should look like the display field */
+.story-description-section.story-description-compact .story-description-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(0, 217, 255, 0.14);
+  border-radius: 14px;
+  padding: 10px 12px;
+  padding-right: 170px;
+  color: #e5ecff;
+  font-size: 0.98rem;
+  line-height: 1.6;
+  min-height: 64px;
+  resize: vertical;
+}
+
+.story-description-section.story-description-compact .story-description-textarea:focus {
+  outline: none;
+  border-color: rgba(0, 217, 255, 0.60);
+  box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.18);
+}
+
+.story-description-section.story-description-compact .story-field-btn {
+  padding: 10px 18px;
+  border-radius: 999px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease, opacity 0.2s ease;
+}
+
+.story-description-section.story-description-compact .story-field-btn--ghost {
+  border: 2px solid rgba(79, 172, 254, 0.95);
+  background: rgba(15, 27, 45, 0.62);
+  color: #e5ecff;
+  box-shadow:
+    0 0 0 1px rgba(0, 217, 255, 0.12) inset,
+    0 14px 30px rgba(0, 0, 0, 0.22);
+}
+
+.story-description-section.story-description-compact .story-field-btn--primary {
+  border: none;
+  background: linear-gradient(135deg, #00d9ff 0%, #b794f6 100%);
+  color: #ffffff;
+  box-shadow:
+    0 0 0 1px rgba(0, 217, 255, 0.12) inset,
+    0 14px 30px rgba(0, 0, 0, 0.22);
+}
+
+.story-description-section.story-description-compact .story-field-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.story-description-section.story-description-compact .story-field-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.story-description-section.story-description-compact .story-description-text {
+  padding: 10px 12px;
+  padding-right: 170px;
+  max-height: 72px;
+  font-size: 0.98rem;
+}
+
+.story-description-section.story-description-compact textarea {
+  min-height: 64px;
+}
+
+.story-description-section.story-description-compact .description-note {
+  display: none;
+}
+
+/* After story set: Team Members (left) + Estimates (right) */
+.estimation-top {
+  display: grid;
+  grid-template-columns: 1fr 1.25fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.estimation-top .team-members-section {
+  margin-bottom: 0;
+}
+
+.estimation-right .cards-section {
+  margin-bottom: 18px;
+}
+
+.estimation-right .reveal-button {
+  margin: 12px auto 0;
 }
 
 .room-info h2 {
@@ -1679,6 +1909,65 @@ body {
 .toggle-buttons {
   display: flex;
   gap: 10px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.header-actions {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-left: auto;
+  padding-top: 2px;
+}
+
+.share-tooltip-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.share-tooltip {
+  position: absolute;
+  top: -42px;
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(15, 27, 45, 0.92);
+  border: 1px solid rgba(0, 217, 255, 0.22);
+  color: #e5ecff;
+  font-size: 0.85rem;
+  font-weight: 700;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  box-shadow: 0 14px 28px rgba(0,0,0,0.22);
+  z-index: 5;
+}
+
+.share-tooltip-wrap:hover .share-tooltip {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.copy-status {
+  position: absolute;
+  top: -42px;
+  left: calc(50% + 140px);
+  transform: translateX(-50%);
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(15, 27, 45, 0.92);
+  border: 1px solid rgba(0, 217, 255, 0.22);
+  color: #e5ecff;
+  font-size: 0.85rem;
+  font-weight: 700;
+  white-space: nowrap;
+  box-shadow: 0 14px 28px rgba(0,0,0,0.22);
+  z-index: 5;
 }
 
 .toggle-btn {
@@ -1827,6 +2116,22 @@ body {
   margin: 0;
 }
 
+.story-description-content {
+  margin-top: 14px;
+}
+
+.story-description-text {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(0, 217, 255, 0.14);
+  border-radius: 14px;
+  padding: 14px 14px;
+  color: #e5ecff;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  max-height: 160px;
+  overflow: auto;
+}
+
 .story-description-input h3 {
   color: #e5ecff;
   font-size: 1.5rem;
@@ -1850,22 +2155,46 @@ body {
   flex: 0 0 auto;
 }
 
+/* Make Update/Cancel match the Edit pill design */
+.description-actions button,
 .story-cancel-btn {
-  padding: 12px 18px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 8px;
-  color: #e5ecff;
+  padding: 10px 14px;
+  border-radius: 999px;
   font-weight: 700;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease, opacity 0.2s ease;
+}
+
+.description-actions button {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(0, 217, 255, 0.28);
+  color: #e5ecff;
+}
+
+.description-actions button:hover:not(:disabled),
+.story-cancel-btn:hover {
+  transform: translateY(-1px);
+  border-color: rgba(0, 217, 255, 0.55);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.25);
+}
+
+.description-actions button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+.story-cancel-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(0, 217, 255, 0.28);
+  color: #e5ecff;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, border-color 0.2s ease;
 }
 
 .story-cancel-btn:hover {
-  transform: translateY(-1px);
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.22);
-  box-shadow: 0 12px 24px rgba(0,0,0,0.25);
+  border-color: rgba(0, 217, 255, 0.55);
 }
 
 .description-form textarea {
@@ -1895,11 +2224,11 @@ body {
   padding: 12px 20px;
   background: linear-gradient(135deg, #00d9ff 0%, #b794f6 100%);
   border: none;
-  border-radius: 8px;
+  border-radius: 999px;
   color: white;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
 }
 
 .description-form button:hover:not(:disabled) {
@@ -2114,6 +2443,17 @@ body {
   gap: 15px;
 }
 
+/* When many users join, keep the panel height stable and scroll the list */
+.team-members-list.team-members-list--scroll {
+  max-height: 520px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  align-content: start;
+  padding-right: 6px;
+  scrollbar-gutter: stable;
+  -webkit-overflow-scrolling: touch;
+}
+
 .team-member {
   display: flex;
   align-items: center;
@@ -2162,6 +2502,7 @@ body {
   font-size: 1rem;
   font-weight: 600;
   margin-bottom: 3px;
+  color: #ffffff;
 }
 
 .member-status {
@@ -2315,6 +2656,11 @@ body {
   border-radius: 20px;
   padding: 30px;
   margin-top: 30px;
+}
+
+/* When results replace the estimate grid in the right column */
+.results-section.results-section-inline {
+  margin-top: 0;
 }
 
 .results-header {
@@ -2831,6 +3177,25 @@ body {
   .board-header {
     flex-direction: column;
     gap: 20px;
+  }
+
+  .header-story {
+    max-width: 100%;
+  }
+
+  .room-info {
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  .estimation-top {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .room-badge {
+    width: 100%;
+    max-width: 100%;
   }
 
   .planning-top-panels {

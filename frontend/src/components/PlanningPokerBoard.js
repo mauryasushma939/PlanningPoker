@@ -15,7 +15,7 @@ const PlanningPokerBoard = ({ roomData, onBack }) => {
   const [estimates, setEstimates] = useState({});
   const [revealed, setRevealed] = useState(false);
   const [results, setResults] = useState(null);
-  const [showAIPanel, setShowAIPanel] = useState(true);
+  const [showAIPanel] = useState(false);
   const [showAnalytics, setShowAnalytics] = useState(false);
   const userRole = roomData.role || 'reviewer';
   const [copyMessage, setCopyMessage] = useState('');
@@ -23,7 +23,7 @@ const PlanningPokerBoard = ({ roomData, onBack }) => {
   const [descriptionInput, setDescriptionInput] = useState('');
   const [isEditingDescription, setIsEditingDescription] = useState(false);
 
-  const fibonacciValues = [1, 2, 3, 5, 8, 13, 21, '?'];
+  const fibonacciValues = [0, 0.5, 1, 2, 3, 5, 8, '?'];
 
   useEffect(() => {
     if (!socket || !connected) return;
@@ -141,11 +141,6 @@ const PlanningPokerBoard = ({ roomData, onBack }) => {
     setIsEditingDescription(true);
   };
 
-  const cancelEditStoryDescription = () => {
-    setDescriptionInput('');
-    setIsEditingDescription(false);
-  };
-
   const handleCopyLink = async () => {
     const params = new URLSearchParams();
     params.set('invite', roomData.roomId);
@@ -167,36 +162,98 @@ const PlanningPokerBoard = ({ roomData, onBack }) => {
     <div className="planning-poker-board">
       {/* Header */}
       <div className="board-header">
-        <button className="back-button" onClick={onBack}>
-          ← Back
-        </button>
+        <div className="room-badge" title={roomData.roomName}>
+          <div className="room-badge-label">Planning Room</div>
+          <div className="room-badge-name">{roomData.roomName}</div>
+        </div>
         <div className="room-info">
-          <h2>{roomData.roomName}</h2>
+          <div className="header-story">
+            <div className="story-description-section story-description-compact">
+              {storyDescription ? (
+                <div className="story-description-display">
+                  <div className="story-description-header">
+                    <h3>Story Description</h3>
+                  </div>
 
+                  {!isEditingDescription ? (
+                    <div className="story-description-content">
+                      <div className="story-field">
+                        <div className="story-field-actions">
+                          <button className="story-field-btn story-field-btn--primary" type="button" onClick={startEditStoryDescription}>
+                            Edit
+                          </button>
+                        </div>
+                        <div className="story-description-text">{storyDescription}</div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="description-form">
+                      <div className="story-field story-field--editing">
+                        <div className="story-field-actions">
+                          <button
+                            className="story-field-btn story-field-btn--primary"
+                            type="button"
+                            onClick={handleSetStoryDescription}
+                            disabled={!descriptionInput.trim()}
+                          >
+                            Update
+                          </button>
+                        </div>
+                        <textarea
+                          value={descriptionInput}
+                          onChange={(e) => setDescriptionInput(e.target.value)}
+                          placeholder="Update the story description..."
+                          rows={2}
+                          className="story-description-text story-description-textarea"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="story-description-input">
+                  <div className="story-description-header">
+                    <h3>Add Story</h3>
+                  </div>
+                  <div className="description-form">
+                    <div className="story-field">
+                      <div className="story-field-actions">
+                        <button
+                          className="story-field-btn story-field-btn--primary"
+                          type="button"
+                          onClick={handleSetStoryDescription}
+                          disabled={!descriptionInput.trim()}
+                        >
+                          Add
+                        </button>
+                      </div>
+                      <textarea
+                        value={descriptionInput}
+                        onChange={(e) => setDescriptionInput(e.target.value)}
+                        placeholder="Describe the story to be estimated..."
+                        rows={2}
+                        className="story-description-text story-description-textarea"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
         <div className="header-actions">
-          <button className="copy-link-btn" onClick={handleCopyLink}>
-            Share invite link
-          </button>
-          {copyMessage && <span className="copy-status">{copyMessage}</span>}
           <div className="toggle-buttons">
-          <button className="share-btn" onClick={handleCopyLink} title="Share invite link">
-            🔗 Share
-          </button>
-          <button
-            className={`toggle-btn ${showAIPanel ? 'active' : ''}`}
-            onClick={() => {
-              setShowAIPanel(!showAIPanel);
-              if (!showAIPanel) setShowAnalytics(false);
-            }}
-          >
-            🤖 AI
-          </button>
+          <div className="share-tooltip-wrap">
+            <button className="share-btn" onClick={handleCopyLink} aria-label="Share invite link">
+              🔗 Share
+            </button>
+            <span className="share-tooltip" role="tooltip">Share invite link</span>
+            {copyMessage && <span className="copy-status">{copyMessage}</span>}
+          </div>
           <button
             className={`toggle-btn ${showAnalytics ? 'active' : ''}`}
             onClick={() => {
               setShowAnalytics(!showAnalytics);
-              if (!showAnalytics) setShowAIPanel(false);
             }}
           >
             📊 Analytics
@@ -208,171 +265,122 @@ const PlanningPokerBoard = ({ roomData, onBack }) => {
       <div className="board-content">
         {/* Main Board */}
         <div className="main-board">
-          <div className="planning-top-panels">
-            {/* Team Members */}
-            <TeamMembers members={members} />
+          {storyDescription ? (
+            <div className="estimation-top">
+              <div className="estimation-left">
+                <TeamMembers members={members} />
+              </div>
 
-            {/* Story Description */}
-            <div className="story-description-section">
-              {storyDescription ? (
-                <div className="story-description-display">
-                  <div className="story-description-header">
-                    <h3>Story Description</h3>
-                    {!isEditingDescription && (
-                      <button className="story-edit-btn" type="button" onClick={startEditStoryDescription}>
-                        Edit
-                      </button>
+              <div className="estimation-right">
+                {!revealed ? (
+                  <div className="cards-section">
+                    <h3 className="section-title">Select Your Estimate</h3>
+                    <div className="cards-container">
+                      {fibonacciValues.map((value) => (
+                        <FibonacciCard
+                          key={value}
+                          value={value}
+                          selected={selectedCard === value}
+                          onSelect={handleCardSelect}
+                          disabled={revealed || userRole === 'observer'}
+                        />
+                      ))}
+                    </div>
+                    {userRole === 'observer' && (
+                      <div style={{ color: '#fff', marginTop: '0.5rem', fontWeight: 500, fontSize: '1rem', textAlign: 'center' }}>
+                        Observers cannot estimate stories.
+                      </div>
                     )}
                   </div>
-
-                  {!isEditingDescription ? (
-                    <p>{storyDescription}</p>
-                  ) : (
-                    <div className="description-form">
-                      <textarea
-                        value={descriptionInput}
-                        onChange={(e) => setDescriptionInput(e.target.value)}
-                        placeholder="Update the story description..."
-                        rows={3}
-                      />
-                      <div className="description-actions">
-                        <button onClick={handleSetStoryDescription} disabled={!descriptionInput.trim()}>
-                          Update Story
-                        </button>
-                        <button className="story-cancel-btn" type="button" onClick={cancelEditStoryDescription}>
-                          Cancel
-                        </button>
+                ) : (
+                  results && (
+                    <motion.div
+                      className="results-section results-section-inline"
+                      initial={{ opacity: 0, y: 12 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.35 }}
+                    >
+                      <div className="results-header">
+                        <h3>Results</h3>
+                        {results.consensus && <span className="consensus-badge">✓ Consensus Reached!</span>}
                       </div>
-                      <p className="description-note">Anyone in the room can update the story description.</p>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div className="story-description-input">
-                  <h3>Add Story Description</h3>
-                  <div className="description-form">
-                    <textarea
-                      value={descriptionInput}
-                      onChange={(e) => setDescriptionInput(e.target.value)}
-                      placeholder="Describe the story to be estimated..."
-                      rows={3}
-                    />
-                    <button onClick={handleSetStoryDescription} disabled={!descriptionInput.trim()}>
-                      Set Description
-                    </button>
-                  </div>
-                  <p className="description-note">Anyone in the room can set the story description.</p>
-                </div>
-              )}
-            </div>
-          </div>
 
-          {/* Fibonacci Cards */}
-          {storyDescription && (
-            <div className="cards-section">
-              <h3 className="section-title">Select Your Estimate</h3>
-              <div className="cards-container">
-                {fibonacciValues.map((value) => (
-                  <FibonacciCard
-                    key={value}
-                    value={value}
-                    selected={selectedCard === value}
-                    onSelect={handleCardSelect}
-                    disabled={revealed || userRole === 'observer'}
-                  />
-                ))}
-              </div>
-              {userRole === 'observer' && (
-                <div style={{color:'#fff',marginTop:'0.5rem',fontWeight:500,fontSize:'1rem',textAlign:'center'}}>Observers cannot estimate stories.</div>
-              )}
-            </div>
-          )}
+                      <div className="results-stats">
+                        <div className="stat-item">
+                          <div className="stat-label">Average</div>
+                          <div className="stat-value">{results.average}</div>
+                        </div>
+                        <div className="stat-item">
+                          <div className="stat-label">Votes</div>
+                          <div className="stat-value">{results.totalVotes}</div>
+                        </div>
+                        <div className="stat-item">
+                          <div className="stat-label">Consensus</div>
+                          <div className="stat-value">{results.consensus ? 'Yes' : 'No'}</div>
+                        </div>
+                      </div>
 
-          {/* Reveal Button */}
-          {storyDescription && !revealed && (
-            <motion.button
-              className="reveal-button"
-              onClick={handleReveal}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              animate={{
-                boxShadow: [
-                  '0 0 20px rgba(0, 217, 255, 0.5)',
-                  '0 0 40px rgba(0, 217, 255, 0.8)',
-                  '0 0 20px rgba(0, 217, 255, 0.5)'
-                ]
-              }}
-              transition={{
-                boxShadow: {
-                  duration: 2,
-                  repeat: Infinity,
-                  repeatType: 'reverse'
-                }
-              }}
-            >
-              <span className="pulse-ring"></span>
-              Reveal Estimates
-            </motion.button>
-          )}
+                      <div className="estimates-list">
+                        <h4>All Estimates</h4>
+                        <div className="estimates-grid">
+                          {Object.entries(estimates).map(([userId, estimate]) => {
+                            const member = members.find((m) => m.id === userId);
+                            return (
+                              <motion.div
+                                key={userId}
+                                className="estimate-item"
+                                initial={{ opacity: 0, scale: 0.98 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ duration: 0.25 }}
+                              >
+                                <span className="estimate-name">{member?.name || 'Unknown'}</span>
+                                <span className="estimate-value">{estimate}</span>
+                              </motion.div>
+                            );
+                          })}
+                        </div>
+                      </div>
 
-          {/* Results Section */}
-          {storyDescription && revealed && results && (
-            <motion.div
-              className="results-section"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <div className="results-header">
-                <h3>Results</h3>
-                {results.consensus && (
-                  <span className="consensus-badge">✓ Consensus Reached!</span>
+                      <button className="reset-button" onClick={handleReset}>
+                        Start New Round
+                      </button>
+                    </motion.div>
+                  )
+                )}
+
+                {/* Reveal Button */}
+                {!revealed && (
+                  <motion.button
+                    className="reveal-button"
+                    onClick={handleReveal}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    animate={{
+                      boxShadow: [
+                        '0 0 20px rgba(0, 217, 255, 0.5)',
+                        '0 0 40px rgba(0, 217, 255, 0.8)',
+                        '0 0 20px rgba(0, 217, 255, 0.5)'
+                      ]
+                    }}
+                    transition={{
+                      boxShadow: {
+                        duration: 2,
+                        repeat: Infinity,
+                        repeatType: 'reverse'
+                      }
+                    }}
+                  >
+                    <span className="pulse-ring"></span>
+                    Reveal Estimates
+                  </motion.button>
                 )}
               </div>
-
-              <div className="results-stats">
-                <div className="stat-item">
-                  <div className="stat-label">Average</div>
-                  <div className="stat-value">{results.average}</div>
-                </div>
-                <div className="stat-item">
-                  <div className="stat-label">Votes</div>
-                  <div className="stat-value">{results.totalVotes}</div>
-                </div>
-                <div className="stat-item">
-                  <div className="stat-label">Consensus</div>
-                  <div className="stat-value">{results.consensus ? 'Yes' : 'No'}</div>
-                </div>
-              </div>
-
-              <div className="estimates-list">
-                <h4>All Estimates</h4>
-                <div className="estimates-grid">
-                  {Object.entries(estimates).map(([userId, estimate]) => {
-                    const member = members.find(m => m.id === userId);
-                    return (
-                      <motion.div
-                        key={userId}
-                        className="estimate-item"
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.3 }}
-                      >
-                        <span className="estimate-name">
-                          {member?.name || 'Unknown'}
-                        </span>
-                        <span className="estimate-value">{estimate}</span>
-                      </motion.div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              <button className="reset-button" onClick={handleReset}>
-                Start New Round
-              </button>
-            </motion.div>
+            </div>
+          ) : (
+            <TeamMembers members={members} />
           )}
+
+          {/* Results are shown inline in the right column after reveal */}
         </div>
 
         {/* Side Column */}
@@ -383,15 +391,15 @@ const PlanningPokerBoard = ({ roomData, onBack }) => {
             userName={roomData.userName}
           />
 
-          {showAIPanel && (
-            <div className="side-panel">
-              <AIInsightPanel roomId={roomData.roomId} />
-            </div>
-          )}
-
           {showAnalytics && (
             <div className="side-panel">
               <AnalyticsDashboard roomId={roomData.roomId} />
+            </div>
+          )}
+
+          {showAIPanel && (
+            <div className="side-panel">
+              <AIInsightPanel roomId={roomData.roomId} />
             </div>
           )}
         </div>
