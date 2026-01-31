@@ -391,12 +391,6 @@ const PlanningPokerBoard = ({ roomData, onBack }) => {
             userName={roomData.userName}
           />
 
-          {showAnalytics && (
-            <div className="side-panel">
-              <AnalyticsDashboard roomId={roomData.roomId} />
-            </div>
-          )}
-
           {showAIPanel && (
             <div className="side-panel">
               <AIInsightPanel roomId={roomData.roomId} />
@@ -404,6 +398,12 @@ const PlanningPokerBoard = ({ roomData, onBack }) => {
           )}
         </div>
       </div>
+
+      {showAnalytics && (
+        <div className="analytics-below">
+          <AnalyticsDashboard roomId={roomData.roomId} />
+        </div>
+      )}
 
       {/* Connection Status */}
       {!connected && (

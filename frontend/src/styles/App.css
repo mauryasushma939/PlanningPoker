@@ -2020,6 +2020,12 @@ body {
   margin: 0 auto;
 }
 
+.analytics-below {
+  max-width: 1800px;
+  margin: 20px auto 0;
+  padding: 0 20px;
+}
+
 .side-column {
   width: 400px;
   flex-shrink: 0;
