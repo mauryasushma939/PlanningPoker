@@ -7,6 +7,7 @@ import AIInsightPanel from './AIInsightPanel';
 import AnalyticsDashboard from './AnalyticsDashboard';
 import ChatPanel from './ChatPanel';
 import Footer from './Footer';
+import ConfirmModal from './ConfirmModal';
 
 const PlanningPokerBoard = ({ roomData, onBack }) => {
   const { socket, connected } = useSocket();
@@ -22,6 +23,8 @@ const PlanningPokerBoard = ({ roomData, onBack }) => {
   const [storyDescription, setStoryDescription] = useState(null);
   const [descriptionInput, setDescriptionInput] = useState('');
   const [isEditingDescription, setIsEditingDescription] = useState(false);
+  const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
+  const [pendingNav, setPendingNav] = useState(null); // 'back' | null
 
   const fibonacciValues = [0, 0.5, 1, 2, 3, 5, 8, '?'];
 
@@ -96,6 +99,46 @@ const PlanningPokerBoard = ({ roomData, onBack }) => {
       socket.off('error');
     };
   }, [socket, connected, roomData]);
+
+  // Prompt before leaving the room (browser back, refresh, or close)
+  useEffect(() => {
+    const message = 'Do you want to close the meeting room?';
+
+    const handleBeforeUnload = (e) => {
+      e.preventDefault();
+      e.returnValue = message;
+      return message;
+    };
+
+    const handlePopState = () => {
+      setPendingNav('back');
+      setShowLeaveConfirm(true);
+      // Re-push to keep us on the page until user confirms
+      window.history.pushState(null, '', window.location.href);
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    window.history.pushState(null, '', window.location.href);
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [onBack]);
+
+  const confirmLeave = () => {
+    setShowLeaveConfirm(false);
+    if (pendingNav === 'back') {
+      if (typeof onBack === 'function') onBack();
+    }
+    setPendingNav(null);
+  };
+
+  const cancelLeave = () => {
+    setShowLeaveConfirm(false);
+    setPendingNav(null);
+  };
 
   const handleCardSelect = (value) => {
     if (revealed || userRole === 'observer') return;
@@ -412,6 +455,16 @@ const PlanningPokerBoard = ({ roomData, onBack }) => {
           Reconnecting...
         </div>
       )}
+
+      <ConfirmModal
+        open={showLeaveConfirm}
+        title="Leave Room"
+        message="Do you want to close the meeting room?"
+        confirmText="Yes, leave"
+        cancelText="No, stay"
+        onConfirm={confirmLeave}
+        onCancel={cancelLeave}
+      />
 
       <Footer />
     </div>
