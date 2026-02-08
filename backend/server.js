@@ -3,23 +3,37 @@ const http = require('http');
 const socketIo = require('socket.io');
 const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
+const compression = require('compression');
+const helmet = require('helmet');
 
 const app = express();
 const server = http.createServer(app);
+
+// Normalize CORS origins
+const FRONTEND_ORIGINS = (process.env.SOCKET_CORS_ORIGIN || 'http://localhost:3000')
+  .split(',')
+  .map(s => s.trim())
+  .filter(Boolean);
+
 const io = socketIo(server, {
   cors: {
-    origin: process.env.NODE_ENV === 'production'
-      ? process.env.SOCKET_CORS_ORIGIN?.split(',') || "*"
-      : "http://localhost:3000",
-    methods: ["GET", "POST"]
-  }
+    origin: FRONTEND_ORIGINS,
+    methods: ["GET", "POST"],
+    credentials: false
+  },
+  transports: ['websocket'],
+  pingTimeout: 20000,
+  pingInterval: 25000
 });
 
 // Middleware
+app.set('trust proxy', true);
+app.use(helmet());
+app.use(compression());
 app.use(cors({
-  origin: "*", 
+  origin: FRONTEND_ORIGINS,
   methods: ["GET", "POST", "PUT", "DELETE"],
-  credentials: true
+  credentials: false
 }));
 app.use(express.json());
 
@@ -470,9 +484,9 @@ io.on('connection', (socket) => {
 });
 
 // Start server
-process.env.PORT = process.env.PORT || '5001';
-const PORT = process.env.PORT || 5000;
+// Ensure default PORT is 5000 and do not override process.env.PORT unexpectedly
+const PORT = process.env.PORT ? Number(process.env.PORT) : 5000;
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
-  console.log(`WebSocket server is ready`);
+  console.log(`WebSocket server is ready. Allowed origins: ${FRONTEND_ORIGINS.join(', ')}`);
 });

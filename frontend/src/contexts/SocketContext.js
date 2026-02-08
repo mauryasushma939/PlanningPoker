@@ -30,17 +30,22 @@ export const SocketProvider = ({ children }) => {
     console.log('SOCKET_URL:', SOCKET_URL);
     console.log('API_URL:', API_URL);
 
+    const t0 = performance.now();
     // Create socket connection
     const newSocket = io(SOCKET_URL, {
       transports: ['websocket'],
       reconnection: true,
       reconnectionDelay: 1000,
-      reconnectionDelayMax: 5000,
-      reconnectionAttempts: 5
+      reconnectionDelayMax: 4000,
+      reconnectionAttempts: 5,
+      timeout: 8000, // fail fast if endpoint/cors/proxy is wrong
+      withCredentials: false,
+      autoConnect: true
     });
 
     newSocket.on('connect', () => {
-      console.log('Connected to server');
+      const dt = Math.round(performance.now() - t0);
+      console.log(`Connected to server in ${dt}ms`);
       setConnected(true);
     });
 

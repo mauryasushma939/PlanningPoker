@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 import Footer from './Footer';
+import Spinner from './Spinner';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
 
@@ -434,7 +435,7 @@ const LandingPage = ({ onStartSession }) => {
                     className="btn-primary"
                     disabled={joinLoading}
                   >
-                    {joinLoading ? 'Joining...' : 'Join Room'}
+                    {joinLoading ? <Spinner label="Joining" /> : 'Join Room'}
                   </button>
                 </div>
               </form>
@@ -672,7 +673,7 @@ const LandingPage = ({ onStartSession }) => {
                   className="btn-primary"
                   disabled={loading}
                 >
-                  {loading ? 'Creating...' : 'Create Room'}
+                  {loading ? <Spinner label="Creating" /> : 'Create Room'}
                 </button>
               </div>
             </form>
