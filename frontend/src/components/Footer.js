@@ -27,7 +27,7 @@ const Footer = () => {
         <div className="footer-column">
           <h4>Support</h4>
           <span>Why Planning Poker?</span>
-          <a href="mailto:support@fls.com">support@pp_fls.com</a>
+          <a href="mailto:viren.nitkkr@gmail.com">viren.nitkkr@gmail.com</a>
         </div>
       </div>
 

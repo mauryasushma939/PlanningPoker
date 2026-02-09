@@ -285,23 +285,28 @@ const PlanningPokerBoard = ({ roomData, onBack }) => {
           </div>
         </div>
         <div className="header-actions">
-          <div className="toggle-buttons">
-          <div className="share-tooltip-wrap">
-            <button className="share-btn" onClick={handleCopyLink} aria-label="Share invite link">
-              🔗 Share
-            </button>
-            <span className="share-tooltip" role="tooltip">Share invite link</span>
-            {copyMessage && <span className="copy-status">{copyMessage}</span>}
+          {/* Right-side actions: Analytics first, Share below; vertical stack */}
+          <div className="room-badge room-badge--right" title={roomData.roomName}>
+            <div className="room-badge-actions">
+              <div className="toggle-buttons" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <button
+                  className={`toggle-btn ${showAnalytics ? 'active' : ''}`}
+                  onClick={() => {
+                    setShowAnalytics(!showAnalytics);
+                  }}
+                >
+                  📊 Analytics
+                </button>
+                <div className="share-tooltip-wrap">
+                  <button className="share-btn" onClick={handleCopyLink} aria-label="Share invite link">
+                    🔗 Share
+                  </button>
+                  <span className="share-tooltip" role="tooltip">Share invite link</span>
+                  {copyMessage && <span className="copy-status">{copyMessage}</span>}
+                </div>
+              </div>
+            </div>
           </div>
-          <button
-            className={`toggle-btn ${showAnalytics ? 'active' : ''}`}
-            onClick={() => {
-              setShowAnalytics(!showAnalytics);
-            }}
-          >
-            📊 Analytics
-          </button>
-        </div>
         </div>
       </div>
 

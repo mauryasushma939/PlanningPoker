@@ -2101,6 +2101,13 @@ body {
   transform: translateY(-1px);
 }
 
+/* Minimize right header buttons by ~30% */
+.room-badge-actions .toggle-btn,
+.room-badge-actions .share-btn {
+  padding: 7px 14px; /* reduced from ~10-20 */
+  font-size: 0.8rem; /* reduced ~30% */
+}
+
 /* Board Content */
 .board-content {
   display: flex;
@@ -3379,4 +3386,83 @@ body {
   .estimate-value {
     font-size: 3.5rem;
   }
+}
+
+/* Right header badge layout improvements */
+.room-badge--right {
+  /* Keep the same neon/glass look, but allow full-width actions */
+  align-items: stretch;
+}
+
+.room-badge-actions .toggle-buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+}
+
+/* Make Analytics fill width for stronger presence */
+.room-badge-actions .toggle-btn {
+  width: 100%;
+  justify-content: center;
+}
+
+/* Center the Share button and tooltip */
+.room-badge-actions .share-tooltip-wrap {
+  width: 100%;
+  justify-content: center;
+}
+
+.room-badge-actions .share-btn {
+  min-width: 200px;
+  justify-content: center;
+}
+
+/* Slight visibility boost (subtle) */
+.room-badge-actions .toggle-btn,
+.room-badge-actions .share-btn {
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.18);
+}
+
+/* On mobile, keep them centered */
+@media (max-width: 768px) {
+  .room-badge-actions .toggle-buttons {
+    align-items: center;
+  }
+  .room-badge-actions .toggle-btn,
+  .room-badge-actions .share-btn {
+    width: 100%;
+    max-width: 340px;
+  }
+}
+
+/* Right header: Analytics larger than Share, both centered */
+.room-badge-actions .toggle-btn { /* Analytics */
+  width: 85%;
+  align-self: center;
+}
+.room-badge-actions .share-tooltip-wrap { /* container to center Share */
+  display: flex;
+  justify-content: center;
+}
+.room-badge-actions .share-btn { /* Share smaller */
+  width: 70%;
+  align-self: center;
+}
+
+/* Right header buttons: increase size slightly for better visibility and center */
+.room-badge-actions .toggle-btn,
+.room-badge-actions .share-btn {
+  width: 80%; /* was 70% */
+  align-self: center;
+  font-size: 0.88rem; /* slightly larger for readability */
+  padding: 9px 16px; /* modest increase */
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+}
+/* Ensure Share tooltip wrap centers the button perfectly */
+.room-badge-actions .share-tooltip-wrap {
+  display: flex;
+  justify-content: center;
 }
