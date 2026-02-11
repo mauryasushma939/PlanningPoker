@@ -25,6 +25,7 @@ const PlanningPokerBoard = ({ roomData, onBack }) => {
   const [isEditingDescription, setIsEditingDescription] = useState(false);
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
   const [pendingNav, setPendingNav] = useState(null); // 'back' | null
+  const [showConfetti, setShowConfetti] = useState(false);
 
   const fibonacciValues = [0, 0.5, 1, 2, 3, 5, 8, '?'];
 
@@ -65,6 +66,11 @@ const PlanningPokerBoard = ({ roomData, onBack }) => {
         consensus: data.consensus,
         totalVotes: data.totalVotes
       });
+      // If consensus reached, trigger confetti for 4 seconds
+      if (data.consensus) {
+        setShowConfetti(true);
+        setTimeout(() => setShowConfetti(false), 4000);
+      }
     });
 
     // Listen for estimates reset
@@ -284,30 +290,6 @@ const PlanningPokerBoard = ({ roomData, onBack }) => {
             </div>
           </div>
         </div>
-        <div className="header-actions">
-          {/* Right-side actions: Analytics first, Share below; vertical stack */}
-          <div className="room-badge room-badge--right" title={roomData.roomName}>
-            <div className="room-badge-actions">
-              <div className="toggle-buttons" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <button
-                  className={`toggle-btn ${showAnalytics ? 'active' : ''}`}
-                  onClick={() => {
-                    setShowAnalytics(!showAnalytics);
-                  }}
-                >
-                  📊 Analytics
-                </button>
-                <div className="share-tooltip-wrap">
-                  <button className="share-btn" onClick={handleCopyLink} aria-label="Share invite link">
-                    🔗 Share
-                  </button>
-                  <span className="share-tooltip" role="tooltip">Share invite link</span>
-                  {copyMessage && <span className="copy-status">{copyMessage}</span>}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
 
       <div className="board-content">
@@ -439,6 +421,31 @@ const PlanningPokerBoard = ({ roomData, onBack }) => {
             userName={roomData.userName}
           />
 
+          {/* Moved: Analytics & Share buttons below the Team chat */}
+          <div className="room-badge room-badge--right" title={roomData.roomName}>
+            <div className="room-badge-actions">
+              <div className="toggle-buttons" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <button
+                  className={`toggle-btn ${showAnalytics ? 'active' : ''}`}
+                  onClick={() => {
+                    setShowAnalytics(!showAnalytics);
+                  }}
+                >
+                  <span className="icon" aria-hidden>📊</span>
+                  <span>Analytics</span>
+                </button>
+                <div className="share-tooltip-wrap">
+                  <button className="share-btn" onClick={handleCopyLink} aria-label="Share invite link">
+                    <span className="icon" aria-hidden>🔗</span>
+                    <span>Share</span>
+                  </button>
+                  <span className="share-tooltip" role="tooltip">Share invite link</span>
+                  {copyMessage && <span className="copy-status">{copyMessage}</span>}
+                </div>
+              </div>
+            </div>
+          </div>
+
           {showAIPanel && (
             <div className="side-panel">
               <AIInsightPanel roomId={roomData.roomId} />
@@ -472,6 +479,15 @@ const PlanningPokerBoard = ({ roomData, onBack }) => {
       />
 
       <Footer />
+      {showConfetti && (
+        <div className="confetti-overlay" aria-hidden>
+          {Array.from({ length: 24 }).map((_, i) => (
+            <span key={i} className={`confetti confetti-${i % 6}`}>
+              {['🏆','🎉','🎊','🥳','⭐','💫'][i % 6]}
+            </span>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

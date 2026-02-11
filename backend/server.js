@@ -385,9 +385,10 @@ io.on('connection', (socket) => {
         totalVotes: Object.keys(room.estimates).length
       });
 
-      // Add chat message for reveal
+      // Chat notifications: only revealer + optional consensus note
       const revealer = room.members.find(m => m.socketId === socket.id);
       if (revealer) {
+        // 1. Who revealed
         const revealMessage = {
           id: uuidv4(),
           userId: revealer.id,
@@ -397,24 +398,36 @@ io.on('connection', (socket) => {
         };
         room.messages = room.messages || [];
         room.messages.push(revealMessage);
+        io.to(roomId).emit('chat-message', revealMessage);
+
+        // 2. Consensus celebration (only if consensus)
+        if (consensus) {
+          const consensusMessage = {
+            id: uuidv4(),
+            userId: revealer.id,
+            userName: revealer.name,
+            text: '🎉 Consensus reached! Great job team!',
+            createdAt: new Date().toISOString()
+          };
+          room.messages.push(consensusMessage);
+          io.to(roomId).emit('chat-message', consensusMessage);
+        }
+
         // cap history
         if (room.messages.length > 200) {
           room.messages = room.messages.slice(-200);
         }
-        io.to(roomId).emit('chat-message', revealMessage);
       }
 
       // Update analytics
       const roomAnalytics = analytics.get(roomId);
       if (roomAnalytics) {
         roomAnalytics.totalStories += 1;
-        // Track consensus count and total votes for accurate rate
         roomAnalytics.consensusCount = (roomAnalytics.consensusCount || 0) + (consensus ? 1 : 0);
         roomAnalytics.voteRounds = (roomAnalytics.voteRounds || 0) + 1;
         roomAnalytics.consensusRate = roomAnalytics.voteRounds > 0
           ? Math.round((roomAnalytics.consensusCount / roomAnalytics.voteRounds) * 100)
           : 0;
-        // Optionally update avgTime, aiAcceptance, etc. here if needed
       }
 
       console.log(`Estimates revealed in room ${roomId}`);

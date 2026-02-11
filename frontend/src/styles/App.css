@@ -3436,20 +3436,6 @@ body {
   }
 }
 
-/* Right header: Analytics larger than Share, both centered */
-.room-badge-actions .toggle-btn { /* Analytics */
-  width: 85%;
-  align-self: center;
-}
-.room-badge-actions .share-tooltip-wrap { /* container to center Share */
-  display: flex;
-  justify-content: center;
-}
-.room-badge-actions .share-btn { /* Share smaller */
-  width: 70%;
-  align-self: center;
-}
-
 /* Right header buttons: increase size slightly for better visibility and center */
 .room-badge-actions .toggle-btn,
 .room-badge-actions .share-btn {
@@ -3465,4 +3451,58 @@ body {
 .room-badge-actions .share-tooltip-wrap {
   display: flex;
   justify-content: center;
+}
+
+/* --- Trendy, distinct styles for Analytics & Share buttons --- */
+/* Analytics: glass + neon accent */
+.room-badge-actions .toggle-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(0, 217, 255, 0.35);
+  color: #e5ecff;
+  border-radius: 14px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 22px rgba(0, 217, 255, 0.18), 0 0 0 1px rgba(0, 217, 255, 0.08) inset;
+  transition: transform 0.2s ease, box-shadow 0.25s ease, border-color 0.2s ease, background 0.2s ease;
+}
+.room-badge-actions .toggle-btn:hover {
+  transform: translateY(-2px);
+  border-color: rgba(0, 217, 255, 0.6);
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 14px 30px rgba(0, 217, 255, 0.28);
+}
+.room-badge-actions .toggle-btn.active {
+  background: linear-gradient(135deg, #00d9ff 0%, #7c4dff 100%);
+  color: #0a0b10;
+  border-color: transparent;
+  box-shadow: 0 16px 36px rgba(0, 217, 255, 0.35);
+}
+
+/* Share: gradient pill + subtle glow */
+.room-badge-actions .share-btn {
+  background: linear-gradient(135deg, #ffd15c 0%, #ff8f6b 100%);
+  color: #0f1b2d;
+  border: none;
+  border-radius: 999px;
+  box-shadow: 0 12px 26px rgba(255, 141, 91, 0.28);
+  transition: transform 0.2s ease, box-shadow 0.25s ease, filter 0.2s ease;
+}
+.room-badge-actions .share-btn:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.05);
+  box-shadow: 0 16px 34px rgba(255, 141, 91, 0.34);
+}
+.room-badge-actions .share-btn:active {
+  transform: translateY(0);
+  filter: brightness(0.98);
+}
+
+/* Icons spacing within buttons */
+.room-badge-actions .toggle-btn .icon,
+.room-badge-actions .share-btn .icon {
+  margin-right: 8px;
+}
+
+/* Separation: ensure vertical gap and full-width alignment stay intact */
+.room-badge-actions .toggle-buttons {
+  gap: 14px;
 }
