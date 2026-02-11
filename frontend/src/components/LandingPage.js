@@ -4,7 +4,11 @@ import axios from 'axios';
 import Footer from './Footer';
 import Spinner from './Spinner';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
+// Update API base resolution to avoid port/domain mismatch in prod
+const API_URL =
+  process.env.REACT_APP_API_URL ||
+  process.env.REACT_APP_SOCKET_URL ||
+  'http://localhost:5000';
 
 const LandingPage = ({ onStartSession }) => {
   const leftFeatures = [
