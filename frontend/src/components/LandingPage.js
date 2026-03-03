@@ -497,12 +497,12 @@ const LandingPage = ({ onStartSession }) => {
                 <div className="key-player-list">
                   <div className="key-player-row">
                     <span className="avatar red"></span>
-                    <span>Keta</span>
+                    <span>Brijesh</span>
                     <span className="check"></span>
                   </div>
                   <div className="key-player-row">
                     <span className="avatar purple"></span>
-                    <span>Kuldip</span>
+                    <span>Krishna</span>
                     <span className="check"></span>
                   </div>
                   <div className="key-player-row">
