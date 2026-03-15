@@ -4,20 +4,41 @@ import axios from 'axios';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
 
-const AIInsightPanel = ({ roomId }) => {
+const AIInsightPanel = ({ roomId, storyDescription }) => {
   const [insight, setInsight] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const formatStoryPoints = (estimate) => {
+    const value = Number(estimate);
+    return value === 1 ? 'Story Point' : 'Story Points';
+  };
 
   const fetchInsight = async () => {
+    const normalizedStoryDescription = (storyDescription || '').trim();
+
+    if (!normalizedStoryDescription) {
+      setInsight(null);
+      setError('Please add a story description to get AI estimation.');
+      return;
+    }
+
     setLoading(true);
+    setError('');
     try {
       const response = await axios.post(`${API_URL}/api/ai-insight`, {
         roomId,
-        storyDescription: 'Current story being estimated'
+        storyDescription: normalizedStoryDescription
       });
       setInsight(response.data.insight);
     } catch (error) {
       console.error('Error fetching AI insight:', error);
+      const apiMessage = error.response?.data?.error;
+      if (apiMessage === 'Story description is required') {
+        setError('Please add a story description to get AI estimation.');
+      } else {
+        setError('Failed to fetch AI estimation. Please try again later.');
+      }
     } finally {
       setLoading(false);
     }
@@ -26,7 +47,7 @@ const AIInsightPanel = ({ roomId }) => {
   useEffect(() => {
     fetchInsight();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [roomId]);
+  }, [roomId, storyDescription]);
 
   if (loading && !insight) {
     return (
@@ -40,7 +61,23 @@ const AIInsightPanel = ({ roomId }) => {
     );
   }
 
+  if (!insight && error) {
+    return (
+      <div className="ai-insight-panel">
+        <div className="panel-header">
+          <span className="panel-icon">🤖</span>
+          <h3>AI Insight</h3>
+        </div>
+        <p>{error}</p>
+      </div>
+    );
+  }
+
   if (!insight) return null;
+
+  const includes = Array.isArray(insight.includes) ? insight.includes : [];
+  const recommendedEstimate = insight.suggestedEstimate || '-';
+  const showEscalation = Boolean(insight.higherEstimate && insight.higherEstimateCondition);
 
   return (
     <motion.div
@@ -59,66 +96,44 @@ const AIInsightPanel = ({ roomId }) => {
 
       <div className="insight-content">
         <motion.div
-          className="suggested-estimate-large"
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ type: 'spring', stiffness: 200, damping: 15 }}
+          className="ai-recommendation-card"
+          initial={{ scale: 0.96, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.3 }}
         >
-          <div className="estimate-label">Suggested Estimate</div>
-          <div className="estimate-value">{insight.suggestedEstimate}</div>
+          <p className="ai-recommendation-line">
+            <span className="ai-checkmark" aria-hidden>✅</span>
+            <span className="ai-recommendation-label">Recommended estimation:</span>
+            <strong className="ai-recommendation-value">
+              {recommendedEstimate} {formatStoryPoints(recommendedEstimate)}
+            </strong>
+          </p>
         </motion.div>
 
-        <div className="confidence-section">
-          <div className="confidence-header">
-            <span>Confidence Score</span>
-            <span className="confidence-value">{insight.confidence}%</span>
-          </div>
-          <div className="confidence-bar-container">
-            <motion.div
-              className="confidence-bar"
-              initial={{ width: 0 }}
-              animate={{ width: `${insight.confidence}%` }}
-              transition={{ duration: 1, delay: 0.3 }}
-            />
-          </div>
+        <div className="ai-because-section">
+          <h4>Because it includes:</h4>
+          {includes.length > 0 ? (
+            <ul className="ai-because-list">
+              {includes.map((item, index) => (
+                <li key={`${item}-${index}`}>{item}</li>
+              ))}
+            </ul>
+          ) : (
+            <p className="ai-reasoning-note">{insight.reasoning}</p>
+          )}
         </div>
 
-        <div className="reasoning-section">
-          <h4>Reasoning</h4>
-          <p>{insight.reasoning}</p>
-        </div>
+        {showEscalation && (
+          <p className="ai-escalation-note">
+            If it also includes {insight.higherEstimateCondition}, then it should be {insight.higherEstimate} SP.
+          </p>
+        )}
 
-        <div className="similar-stories-section">
-          <h4>Similar Past Stories</h4>
-          <div className="stories-list">
-            {insight.similarStories.map((story, index) => (
-              <motion.div
-                key={index}
-                className="story-item"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: 0.5 + index * 0.1 }}
-              >
-                <div className="story-name">{story.name}</div>
-                <div className="story-details">
-                  <span className="story-estimate">Est: {story.estimate}</span>
-                  <span className="story-accuracy">
-                    Accuracy: {story.accuracy}%
-                  </span>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
+        {insight.reasoning && includes.length > 0 && (
+          <p className="ai-reasoning-note">{insight.reasoning}</p>
+        )}
 
-        <div className="achievements-section">
-          <h4>Achievement Badges</h4>
-          <div className="badges">
-            <div className="badge" title="Estimation Master">🏆</div>
-            <div className="badge" title="Consensus Builder">🤝</div>
-            <div className="badge" title="Quick Estimator">⚡</div>
-          </div>
-        </div>
+        <p className="ai-confidence-note">Confidence: {insight.confidence}%</p>
       </div>
     </motion.div>
   );

@@ -1,3 +1,5 @@
+require('dotenv').config(); // Load environment variables from .env file
+
 const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
@@ -5,15 +7,187 @@ const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
 const compression = require('compression');
 const helmet = require('helmet');
+const sql = require('./db'); // Import the database connection
+const axios = require('axios'); // Import axios for making API requests
+
+// Ensure OpenAI API key is loaded from environment variables
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+const OPENAI_MODEL = process.env.OPENAI_MODEL || 'gpt-4o-mini';
+
+if (!OPENAI_API_KEY) {
+  console.warn('Missing OpenAI API key. The AI insight endpoint will use heuristic fallback responses.');
+}
+
+const FIBONACCI_POINTS = [1, 2, 3, 5, 8, 13];
+
+const nearestFibonacciPoint = (value) => {
+  const numeric = Number(value);
+  const target = Number.isFinite(numeric) ? numeric : 3;
+
+  return FIBONACCI_POINTS.reduce((closest, current) => {
+    return Math.abs(current - target) < Math.abs(closest - target) ? current : closest;
+  }, FIBONACCI_POINTS[0]);
+};
+
+const nextFibonacciPoint = (value) => {
+  const numeric = Number(value);
+  const base = Number.isFinite(numeric) ? numeric : 3;
+  const next = FIBONACCI_POINTS.find(point => point > base);
+  return next || FIBONACCI_POINTS[FIBONACCI_POINTS.length - 1];
+};
+
+const sanitizeStringArray = (values, maxItems = 6) => {
+  if (!Array.isArray(values)) return [];
+
+  return values
+    .map(value => (typeof value === 'string' ? value.trim() : ''))
+    .filter(Boolean)
+    .slice(0, maxItems);
+};
+
+const isWeakEscalationCondition = (value) => {
+  if (typeof value !== 'string') return true;
+
+  const normalized = value.trim().toLowerCase();
+  if (!normalized) return true;
+
+  const weakPhrases = [
+    'additional features',
+    'more complexity',
+    'complex validation',
+    'extra complexity',
+    'further requirements',
+    'etc'
+  ];
+
+  const hasWeakPhrase = weakPhrases.some(phrase => normalized.includes(phrase));
+  const hasEnoughDetail = normalized.split(',').filter(Boolean).length >= 2;
+
+  return hasWeakPhrase || !hasEnoughDetail;
+};
+
+const extractScopeItems = (storyDescription) => {
+  const text = String(storyDescription || '').toLowerCase();
+  const items = [];
+
+  const addIfMatches = (regex, label) => {
+    if (regex.test(text) && !items.includes(label)) {
+      items.push(label);
+    }
+  };
+
+  addIfMatches(/(react|ui|frontend|component)/, 'React UI implementation');
+  addIfMatches(/(login|sign ?in|auth|authentication|oauth)/, 'Login/authentication flow');
+  addIfMatches(/(admin|role|permission|rbac|access)/, 'User/Admin role selection and access rules');
+  addIfMatches(/(form|validation|input|field|error)/, 'Form validation and error handling');
+  addIfMatches(/(redirect|dashboard|navigation|routing|route)/, 'Redirect/navigation to the relevant dashboard');
+  addIfMatches(/(api|endpoint|backend|integration)/, 'API integration with backend endpoints');
+  addIfMatches(/(jwt|token|session|cookie)/, 'JWT/session handling');
+  addIfMatches(/(protected route|route guard|authorization)/, 'Protected routes and route guards');
+  addIfMatches(/(test|testing|unit test|integration test|e2e)/, 'Automated test coverage');
+
+  if (items.length === 0) {
+    return [
+      'Core feature implementation',
+      'UI and state handling',
+      'Validation and error handling',
+      'Integration verification'
+    ];
+  }
+
+  return items.slice(0, 5);
+};
+
+const buildEscalationGuidance = (storyDescription, suggestedEstimate) => {
+  const text = String(storyDescription || '').toLowerCase();
+
+  const optionalScopes = [
+    { regex: /(api|endpoint|backend|integration)/, label: 'API integration' },
+    { regex: /(jwt|token|session|oauth|authentication)/, label: 'JWT auth/session handling' },
+    { regex: /(protected route|route guard|authorization)/, label: 'protected routes' },
+    { regex: /(test|testing|unit test|integration test|e2e)/, label: 'testing' },
+    { regex: /(audit|logging|monitoring|observability)/, label: 'audit logging and observability' }
+  ];
+
+  const missingScopes = optionalScopes
+    .filter(item => !item.regex.test(text))
+    .map(item => item.label)
+    .slice(0, 4);
+
+  const fallbackScopes = ['API integration', 'JWT auth/session handling', 'protected routes', 'testing'];
+
+  return {
+    higherEstimate: String(nextFibonacciPoint(suggestedEstimate)),
+    higherEstimateCondition: (missingScopes.length > 0 ? missingScopes : fallbackScopes).join(', ')
+  };
+};
+
+const safeParseJson = (text) => {
+  if (typeof text !== 'string' || !text.trim()) return null;
+
+  try {
+    return JSON.parse(text);
+  } catch (error) {
+    const match = text.match(/\{[\s\S]*\}/);
+    if (!match) return null;
+
+    try {
+      return JSON.parse(match[0]);
+    } catch (parseError) {
+      return null;
+    }
+  }
+};
+
+const buildFallbackInsight = (storyDescription, extraReason = '') => {
+  const text = String(storyDescription || '').toLowerCase();
+  let complexityScore = 2;
+
+  const heavySignals = /(integration|third-party|payment|oauth|authentication|authorization|security|encryption|migration|real-time|websocket|concurrency|performance|distributed|database schema)/g;
+  const mediumSignals = /(api|endpoint|refactor|state management|analytics|dashboard|permissions|validation|error handling|retry)/g;
+  const lightSignals = /(copy change|typo|label|tooltip|css|style|alignment|color)/g;
+
+  complexityScore += (text.match(heavySignals) || []).length * 2;
+  complexityScore += (text.match(mediumSignals) || []).length;
+  complexityScore -= (text.match(lightSignals) || []).length;
+
+  if (text.length > 240) {
+    complexityScore += 2;
+  } else if (text.length > 120) {
+    complexityScore += 1;
+  }
+
+  complexityScore = Math.max(1, complexityScore);
+
+  const suggestedEstimate = String(nearestFibonacciPoint(complexityScore));
+  const includes = extractScopeItems(storyDescription);
+  const escalationGuidance = buildEscalationGuidance(storyDescription, suggestedEstimate);
+
+  return {
+    suggestedEstimate,
+    confidence: 68,
+    reasoning: `Estimated using local complexity heuristics (scope, risk, and implementation detail).${extraReason ? ` ${extraReason}` : ''}`,
+    includes,
+    higherEstimate: escalationGuidance.higherEstimate,
+    higherEstimateCondition: escalationGuidance.higherEstimateCondition,
+    similarStories: []
+  };
+};
 
 const app = express();
 const server = http.createServer(app);
 
-// Normalize CORS origins
-const FRONTEND_ORIGINS = (process.env.SOCKET_CORS_ORIGIN || 'http://localhost:3000')
-  .split(',')
-  .map(s => s.trim())
-  .filter(Boolean);
+// Normalize CORS origins (include local dev origins only outside production)
+const DEFAULT_LOCAL_ORIGINS = process.env.NODE_ENV === 'production'
+  ? []
+  : ['http://localhost:3000', 'http://127.0.0.1:3000'];
+const FRONTEND_ORIGINS = Array.from(new Set(
+  [process.env.SOCKET_CORS_ORIGIN, process.env.CORS_ORIGIN, ...DEFAULT_LOCAL_ORIGINS]
+    .filter(Boolean)
+    .flatMap(value => value.split(','))
+    .map(s => s.trim())
+    .filter(Boolean)
+));
 
 const io = socketIo(server, {
   cors: {
@@ -106,49 +280,138 @@ app.get('/api/rooms/:roomId', (req, res) => {
   }
 });
 
+// Admin login endpoint
+app.post('/api/admin/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password are required' });
+    }
+
+    // Query the admin table in the database
+    const [admin] = await sql`SELECT * FROM admin WHERE user_id = ${email}`;
+
+    if (!admin) {
+      return res.status(404).json({ error: 'Admin not found' });
+    }
+
+    // Validate password
+    if (admin.password !== password) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    // Successful login
+    res.json({ message: 'Login successful', admin: { id: admin.id, userName: admin.user_name } });
+  } catch (error) {
+    console.error('Error during admin login:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Get AI insight
-app.post('/api/ai-insight', (req, res) => {
+app.post('/api/ai-insight', async (req, res) => {
   try {
     const { roomId, storyDescription } = req.body;
+    const room = roomId ? rooms.get(roomId) : null;
+    const resolvedStoryDescription = (storyDescription || room?.storyDescription || '').trim();
 
-    // Simulate AI processing with realistic data
-    const estimateScale = [0, 0.5, 1, 2, 3, 5, 8];
-    const suggestedEstimate = estimateScale[Math.floor(Math.random() * estimateScale.length)];
-    const confidence = Math.floor(Math.random() * 20) + 75; // 75-95%
+    if (!resolvedStoryDescription) {
+      return res.status(400).json({ error: 'Story description is required' });
+    }
 
-    const index = estimateScale.indexOf(suggestedEstimate);
-    const lower = estimateScale[Math.max(0, index - 1)];
-    const higher = estimateScale[Math.min(estimateScale.length - 1, index + 1)];
+    const fallbackInsight = buildFallbackInsight(resolvedStoryDescription);
 
-    const insight = {
-      suggestedEstimate,
-      confidence,
-      reasoning: `Based on ${Math.floor(Math.random() * 50) + 10} similar stories, this task appears to have ${
-        suggestedEstimate <= 3 ? 'low' : suggestedEstimate <= 8 ? 'medium' : 'high'
-      } complexity with clear acceptance criteria.`,
-      similarStories: [
+    if (!OPENAI_API_KEY) {
+      return res.json({ insight: fallbackInsight });
+    }
+
+    // Call OpenAI API
+    const response = await axios.post('https://api.openai.com/v1/chat/completions', {
+      model: OPENAI_MODEL,
+      temperature: 0.3,
+      max_tokens: 350,
+      response_format: { type: 'json_object' },
+      messages: [
         {
-          name: 'User authentication flow',
-          estimate: suggestedEstimate,
-          accuracy: Math.floor(Math.random() * 15) + 85
+          role: 'system',
+          content: 'You are a planning poker assistant. Reply with strict JSON containing: suggestedEstimate (one of 1,2,3,5,8,13), confidence (1-100), includes (array of 3-6 short bullet strings), higherEstimate (one of 2,3,5,8,13), higherEstimateCondition (string without leading "If"), reasoning (short sentence), and similarStories (array of up to 3 objects with name, estimate, accuracy).'
         },
         {
-          name: 'Payment gateway integration',
-          estimate: lower,
-          accuracy: Math.floor(Math.random() * 15) + 80
-        },
-        {
-          name: 'Dashboard analytics panel',
-          estimate: higher,
-          accuracy: Math.floor(Math.random() * 15) + 82
+          role: 'user',
+          content: `Estimate this user story for planning poker: ${resolvedStoryDescription}. Keep includes practical and implementation-focused.`
         }
       ]
-    };
+    }, {
+      headers: {
+        'Authorization': `Bearer ${OPENAI_API_KEY}`,
+        'Content-Type': 'application/json'
+      }
+    });
 
-    res.json({ insight });
+    const content = response.data?.choices?.[0]?.message?.content || '';
+    const aiResponse = safeParseJson(content);
+
+    if (!aiResponse) {
+      return res.json({
+        insight: {
+          ...fallbackInsight,
+          reasoning: `${fallbackInsight.reasoning} AI response format was invalid, so fallback logic was used.`
+        }
+      });
+    }
+
+    const rawSimilarStories = Array.isArray(aiResponse.similarStories) ? aiResponse.similarStories : [];
+    const normalizedSimilarStories = rawSimilarStories.slice(0, 3).map((story, index) => {
+      const accuracy = Number(story?.accuracy);
+      return {
+        name: typeof story?.name === 'string' && story.name.trim() ? story.name.trim() : `Story ${index + 1}`,
+        estimate: String(nearestFibonacciPoint(story?.estimate)),
+        accuracy: Number.isFinite(accuracy) ? Math.max(1, Math.min(100, Math.round(accuracy))) : 80
+      };
+    });
+
+    const confidence = Number(aiResponse.confidence);
+    const suggestedEstimate = String(nearestFibonacciPoint(aiResponse.suggestedEstimate));
+    const includes = sanitizeStringArray(aiResponse.includes);
+    const fallbackEscalation = buildEscalationGuidance(resolvedStoryDescription, suggestedEstimate);
+    const parsedHigherEstimate = String(nearestFibonacciPoint(aiResponse.higherEstimate));
+    const normalizedHigherEstimate = Number(parsedHigherEstimate) > Number(suggestedEstimate)
+      ? parsedHigherEstimate
+      : String(nextFibonacciPoint(suggestedEstimate));
+    const rawHigherEstimateCondition = typeof aiResponse.higherEstimateCondition === 'string'
+      ? aiResponse.higherEstimateCondition.trim().replace(/^if\s+it\s+also\s+includes\s*/i, '')
+      : '';
+    const higherEstimateCondition = isWeakEscalationCondition(rawHigherEstimateCondition)
+      ? fallbackEscalation.higherEstimateCondition
+      : rawHigherEstimateCondition;
+
+    res.json({
+      insight: {
+        suggestedEstimate,
+        confidence: Number.isFinite(confidence) ? Math.max(1, Math.min(100, Math.round(confidence))) : fallbackInsight.confidence,
+        reasoning: typeof aiResponse.reasoning === 'string' && aiResponse.reasoning.trim()
+          ? aiResponse.reasoning.trim()
+          : fallbackInsight.reasoning,
+        includes: includes.length > 0 ? includes : fallbackInsight.includes,
+        higherEstimate: normalizedHigherEstimate,
+        higherEstimateCondition,
+        similarStories: normalizedSimilarStories
+      }
+    });
   } catch (error) {
-    console.error('Error getting AI insight:', error);
-    res.status(500).json({ error: 'Failed to get AI insight' });
+    console.error('Error getting AI insight:', error.response?.data || error.message);
+
+    const room = req.body?.roomId ? rooms.get(req.body.roomId) : null;
+    const resolvedStoryDescription = (req.body?.storyDescription || room?.storyDescription || '').trim();
+
+    if (!resolvedStoryDescription) {
+      return res.status(500).json({ error: 'Failed to get AI insight' });
+    }
+
+    res.json({
+      insight: buildFallbackInsight(resolvedStoryDescription, 'Live AI service is unavailable right now.')
+    });
   }
 });
 
@@ -497,9 +760,20 @@ io.on('connection', (socket) => {
 });
 
 // Start server
-// Ensure default PORT is 5000 and do not override process.env.PORT unexpectedly
 const PORT = process.env.PORT ? Number(process.env.PORT) : 5000;
-server.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-  console.log(`WebSocket server is ready. Allowed origins: ${FRONTEND_ORIGINS.join(', ')}`);
-});
+
+const startServer = (port) => {
+  server.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
+    console.log(`WebSocket server is ready. Allowed origins: ${FRONTEND_ORIGINS.join(', ')}`);
+  }).on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+      console.error(`Port ${port} is already in use. Trying another port...`);
+      startServer(port + 1);
+    } else {
+      console.error('Failed to start server:', err);
+    }
+  });
+};
+
+startServer(PORT);
