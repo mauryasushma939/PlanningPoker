@@ -1,14 +1,8 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import io from 'socket.io-client';
 
-// Use backend URL consistently: prefer REACT_APP_SOCKET_URL, else REACT_APP_API_URL, else localhost:5000
-const SOCKET_URL =
-  process.env.REACT_APP_SOCKET_URL ||
-  process.env.REACT_APP_API_URL ||
-  'http://localhost:5000';
-const API_URL =
-  process.env.REACT_APP_API_URL ||
-  SOCKET_URL;
+const SOCKET_URL = process.env.REACT_APP_SOCKET_URL || 'http://localhost:5001';
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
 
 console.log('Environment variables:', {
   REACT_APP_SOCKET_URL: process.env.REACT_APP_SOCKET_URL,

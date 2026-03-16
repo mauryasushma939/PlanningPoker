@@ -8,7 +8,7 @@ import Spinner from './Spinner';
 const API_URL =
   process.env.REACT_APP_API_URL ||
   process.env.REACT_APP_SOCKET_URL ||
-  'http://localhost:5000';
+  'http://localhost:5001';
 
 const LandingPage = ({ onStartSession }) => {
   const leftFeatures = [

@@ -14,6 +14,7 @@
     { "src": "/(.*)", "dest": "/index.html" }
   ],
   "env": {
-    "REACT_APP_API_URL": "https://pp-ten-mu.vercel.app"
+    "REACT_APP_API_URL": "https://pp-ten-mu.vercel.app",
+    "REACT_APP_SOCKET_URL": "https://pp-ten-mu.vercel.app"
   }
 }

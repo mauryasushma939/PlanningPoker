@@ -1,5 +1,5 @@
-
 import React, { useState, useEffect, useRef } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { SocketProvider } from './contexts/SocketContext';
 import LandingPage from './components/LandingPage';
 import PlanningPokerBoard from './components/PlanningPokerBoard';
@@ -76,18 +76,24 @@ function App() {
 
   return (
     <SocketProvider>
-      <div className="App">
-        <Header />
-        <InactivityPopup show={showInactive} onClose={() => setShowInactive(false)} />
-        {currentView === 'landing' ? (
-          <LandingPage onStartSession={handleStartSession} />
-        ) : (
-          <PlanningPokerBoard 
-            roomData={roomData} 
-            onBack={handleBackToLanding}
-          />
-        )}
-      </div>
+      <Router>
+        <div className="App">
+          <Header />
+          <InactivityPopup show={showInactive} onClose={() => setShowInactive(false)} />
+          <Routes>
+            <Route path="/" element={
+              currentView === 'landing' ? (
+                <LandingPage onStartSession={handleStartSession} />
+              ) : (
+                <PlanningPokerBoard 
+                  roomData={roomData} 
+                  onBack={handleBackToLanding}
+                />
+              )
+            } />
+          </Routes>
+        </div>
+      </Router>
     </SocketProvider>
   );
 }

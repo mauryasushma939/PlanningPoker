@@ -18,6 +18,7 @@ const PlanningPokerBoard = ({ roomData, onBack }) => {
   const [results, setResults] = useState(null);
   const [showAIPanel] = useState(false);
   const [showAnalytics, setShowAnalytics] = useState(false);
+  const [showAIInsight, setShowAIInsight] = useState(false);
   const userRole = roomData.role || 'reviewer';
   const [copyMessage, setCopyMessage] = useState('');
   const [storyDescription, setStoryDescription] = useState(null);
@@ -434,6 +435,15 @@ const PlanningPokerBoard = ({ roomData, onBack }) => {
                   <span className="icon" aria-hidden>📊</span>
                   <span>Analytics</span>
                 </button>
+                <button
+                  className={`toggle-btn ${showAIInsight ? 'active' : ''}`}
+                  onClick={() => {
+                    setShowAIInsight(!showAIInsight);
+                  }}
+                >
+                  <span className="icon" aria-hidden>🤖</span>
+                  <span>AI Estimator</span>
+                </button>
                 <div className="share-tooltip-wrap">
                   <button className="share-btn" onClick={handleCopyLink} aria-label="Share invite link">
                     <span className="icon" aria-hidden>🔗</span>
@@ -448,15 +458,23 @@ const PlanningPokerBoard = ({ roomData, onBack }) => {
 
           {showAIPanel && (
             <div className="side-panel">
-              <AIInsightPanel roomId={roomData.roomId} />
+              <AIInsightPanel roomId={roomData.roomId} storyDescription={storyDescription} />
             </div>
           )}
         </div>
       </div>
 
-      {showAnalytics && (
+      {/* Analytics Panel */}
+      {showAnalytics && !showAIInsight && (
         <div className="analytics-below">
           <AnalyticsDashboard roomId={roomData.roomId} />
+        </div>
+      )}
+
+      {/* AI Insight Panel */}
+      {showAIInsight && !showAnalytics && (
+        <div className="ai-insight-below">
+          <AIInsightPanel roomId={roomData.roomId} storyDescription={storyDescription} />
         </div>
       )}
 
